@@ -1,0 +1,8 @@
+# TODO: set the python intepreters correctly
+# TODO: pin versions
+dalle-mini
+# TODO: figure out if this is needed
+git+https://github.com/patil-suraj/vqgan-jax.git
+# TODO: remove this and figure out a better way to install cuda
+jax==0.3.17
+jaxlib @ https://storage.googleapis.com/jax-releases/cuda11/jaxlib-0.3.15+cuda11.cudnn82-cp38-none-manylinux2014_x86_64.whl

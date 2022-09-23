@@ -1,0 +1,64 @@
+{
+    "meta": {
+        "label": "Generate images",
+        "description": "Generate images from a text column using DALL·E mini",
+        "icon": "icon-picture"
+    },
+
+    "kind": "PYTHON",
+
+    "inputRoles": [
+        {
+            "name": "input_dataset",
+            "label": "Input dataset",
+            "description": "Dataset to read text descriptions from",
+            "arity": "UNARY",
+            "required": true,
+            "acceptsDataset": true
+        }
+    ],
+
+    "outputRoles": [
+        {
+            "name": "output_folder",
+            "label": "Output folder",
+            "description": "Folder to save generated images to",
+            "arity": "UNARY",
+            "required": true,
+            "acceptsDataset" : false,
+            "acceptsManagedFolder": true
+        }
+    ],
+
+    "params": [
+        {
+            "type": "COLUMN",
+            "name": "text_column",
+            "label": "Text column",
+            "description": "Column to generate images from",
+            "mandatory": true,
+            "columnRole": "input_dataset",
+            "allowedColumnTypes": ["string"]
+        },
+        {
+            "type": "COLUMN",
+            "name": "filename_column",
+            "label": "Filename column",
+            "description": "Column to name the saved image files after. If blank, the row index will be used",
+            "mandatory": false,
+            "columnRole": "input_dataset",
+            "allowedColumnTypes": ["string"]
+        },
+        {
+            "type": "INT",
+            "name": "image_count",
+            "label": "Image count",
+            "description": "Number of images to generate per row",
+            "mandatory": true,
+            "defaultValue": 1,
+            "minI": 1
+        }
+    ],
+
+    "resourceKeys": []
+}
