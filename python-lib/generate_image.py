@@ -1,25 +1,34 @@
-from functools import partial
 import os
 import random
+from functools import partial
 
+import jax
+import jax.numpy as jnp
+import numpy as np
 from PIL import Image
 from dalle_mini import DalleBart, DalleBartProcessor
 from flax.jax_utils import replicate
 from flax.training.common_utils import shard_prng_key
 from vqgan_jax.modeling_flax_vqgan import VQModel
-import jax
-import jax.numpy as jnp
-import numpy as np
 
 # Prevent Weights & Biases from attempting to create an account when
 # using a wandb model
-os.environ['WANDB_MODE'] = 'disabled'
+os.environ["WANDB_MODE"] = "disabled"
 
 
 # model inference
-@partial(jax.pmap, axis_name="batch", static_broadcasted_argnums=(0, 4, 5, 6, 7))
+@partial(
+    jax.pmap, axis_name="batch", static_broadcasted_argnums=(0, 4, 5, 6, 7)
+)
 def p_generate(
-    model, tokenized_prompt, key, params, top_k, top_p, temperature, condition_scale
+    model,
+    tokenized_prompt,
+    key,
+    params,
+    top_k,
+    top_p,
+    temperature,
+    condition_scale,
 ):
     return model.generate(
         **tokenized_prompt,
@@ -39,11 +48,12 @@ def p_decode(vqgan, indices, params):
 
 
 class ImageGenerator:
-    __slots__ = ('model', 'model_params', 'vqgan', 'vqgan_params', 'processor')
+    __slots__ = ("model", "model_params", "vqgan", "vqgan_params", "processor")
 
     # TODO: make this configurable
-    # dalle-mini
-    DALLE_MODEL = "dalle-mini/dalle-mini/mini-1:v0"  # can be wandb artifact or 🤗 Hub or local folder or google bucket
+    # dalle-mini model
+    # Can be wandb artifact or 🤗 Hub or local folder or google bucket
+    DALLE_MODEL = "dalle-mini/dalle-mini/mini-1:v0"
     DALLE_COMMIT_ID = None
     # VQGAN model
     VQGAN_REPO = "dalle-mini/vqgan_imagenet_f16_16384"
@@ -53,7 +63,10 @@ class ImageGenerator:
         # Load dalle-mini
         self.model, model_params = DalleBart.from_pretrained(
             # TODO: might need to set dtype to float16 when using a mega model
-            self.DALLE_MODEL, revision=self.DALLE_COMMIT_ID, dtype=jnp.float32, _do_init=False
+            self.DALLE_MODEL,
+            revision=self.DALLE_COMMIT_ID,
+            dtype=jnp.float32,
+            _do_init=False,
         )
 
         # Load VQGAN
@@ -64,7 +77,9 @@ class ImageGenerator:
         self.model_params = replicate(model_params)
         self.vqgan_params = replicate(vqgan_params)
 
-        self.processor = DalleBartProcessor.from_pretrained(self.DALLE_MODEL, revision=self.DALLE_COMMIT_ID)
+        self.processor = DalleBartProcessor.from_pretrained(
+            self.DALLE_MODEL, revision=self.DALLE_COMMIT_ID
+        )
 
     def generate_images(self, description, image_count):
         """Generate images based on the description
@@ -96,16 +111,28 @@ class ImageGenerator:
 
             # Generate an image
             encoded_images = p_generate(
-                self.model, tokenized_prompt, shard_prng_key(subkey), self.model_params,
-                gen_top_k, gen_top_p, temperature, cond_scale
+                self.model,
+                tokenized_prompt,
+                shard_prng_key(subkey),
+                self.model_params,
+                gen_top_k,
+                gen_top_p,
+                temperature,
+                cond_scale,
             )
 
             # Remove BOS
             encoded_images = encoded_images.sequences[..., 1:]
 
             # Decode the images
-            decoded_images = p_decode(self.vqgan, encoded_images, self.vqgan_params)
-            decoded_images = decoded_images.clip(0.0, 1.0).reshape((-1, 256, 256, 3))
+            decoded_images = p_decode(
+                self.vqgan, encoded_images, self.vqgan_params
+            )
+            decoded_images = decoded_images.clip(0.0, 1.0).reshape(
+                (-1, 256, 256, 3)
+            )
             for decoded_img in decoded_images:
-                image = Image.fromarray(np.asarray(decoded_img * 255, dtype=np.uint8))
+                image = Image.fromarray(
+                    np.asarray(decoded_img * 255, dtype=np.uint8)
+                )
                 yield image

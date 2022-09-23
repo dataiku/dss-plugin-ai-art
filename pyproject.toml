@@ -1,0 +1,5 @@
+[tool.black]
+# PEP 8 maximum line length
+line-length = 79
+# Minimum supported Python version
+target-version = ['py37']
