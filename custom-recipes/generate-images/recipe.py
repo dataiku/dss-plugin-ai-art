@@ -1,40 +1,37 @@
 import logging
 
 import dataiku
-from dataiku import customrecipe
+from dataiku.customrecipe import (
+    get_input_names_for_role,
+    get_output_names_for_role,
+    get_recipe_config,
+)
 
 from generate_image import ImageGenerator
 
-input_dataset_name = customrecipe.get_input_names_for_role("input_dataset")[0]
-output_folder_name = customrecipe.get_output_names_for_role("output_folder")[0]
+weights_folder_name = get_input_names_for_role("weights_folder")[0]
+image_folder_name = get_output_names_for_role("image_folder")[0]
+weights_folder = dataiku.Folder(weights_folder_name)
+image_folder = dataiku.Folder(image_folder_name)
 
-input_dataset = dataiku.Dataset(input_dataset_name)
-output_folder = dataiku.Folder(output_folder_name)
-
-input_dataset_df = input_dataset.get_dataframe()
-
-recipe_config = customrecipe.get_recipe_config()
-text_column = recipe_config["text_column"]
-filename_column = recipe_config.get("filename_column")
+recipe_config = get_recipe_config()
+prompt = recipe_config["prompt"]
 image_count = recipe_config["image_count"]
+filename_prefix = recipe_config["filename_prefix"]
 
-# TODO: handle rows with empty values
-for row_index, row in input_dataset_df.iterrows():
-    description = str(row[text_column])
+# TODO: figure out if there's a better way so store the weights. The
+# current method only works if the folder is on the local FS.
+# https://huggingface.co/docs/diffusers/v0.3.0/en/api/diffusion_pipeline#diffusers.DiffusionPipeline.from_pretrained
+weights_path = weights_folder.get_path()
 
-    if filename_column:
-        base_filename = str(row[filename_column])
-    else:
-        base_filename = str(row_index)
+logging.info("Generating %s images", image_count)
+generator = ImageGenerator(weights_path)
+images = generator.generate_images(prompt, image_count)
 
-    logging.info("Processing row: %s", base_filename)
+for i, image in enumerate(images):
+    filename = f"{filename_prefix}{i+1}.png"
 
-    generator = ImageGenerator()
-    images = generator.generate_images(description, image_count)
-
-    for image_index, image in enumerate(images):
-        filename = f"{base_filename}_{image_index}.png"
-        logging.info("Saving image: %s", filename)
-        with output_folder.get_writer(filename) as f:
-            # TODO: make the format configurable
-            image.save(f, format="PNG")
+    logging.info("Saving image: %s", filename)
+    with image_folder.get_writer(filename) as f:
+        # TODO: make the format configurable
+        image.save(f, format="PNG")
