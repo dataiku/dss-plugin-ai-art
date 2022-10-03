@@ -1,0 +1,45 @@
+// TODO: add installation instructions for git and lfs
+{
+    "meta": {
+        "label": "Download Stable Diffusion weights",
+        "description": "Download Stable Diffusion weights from Hugging Face to a managed folder",
+        "icon": "icon-download"
+    },
+    "impersonate": true,
+    "params": [
+        {
+            "name": "weights_folder",
+            "label": "Weights folder",
+            "type": "MANAGED_FOLDER",
+            "description": "Folder that the weights will be downloaded to",
+            "mandatory": true
+        },
+        // TODO: add choices for model_repo
+        // TODO: add a disclaimer about the model's license (CreativeML Open RAIL-M)
+        {
+            "name": "model_repo",
+            "label": "Model repo",
+            "type": "STRING",
+            "description": "Hugging Face repository to download the weights from",
+            "defaultValue": "CompVis/stable-diffusion-v1-4",
+            "mandatory": true
+        },
+        {
+            "name": "hugging_face_credentials",
+            "label": "Hugging Face credentials",
+            "type": "PRESET",
+            "description": "User credentials used to access Hugging Face",
+            "parameterSetId": "hugging-face-credentials",
+            // TODO: make this not mandatory if the user is given the option to select any git repo
+            "mandatory": true
+        }
+    ],
+    "permissions": ["WRITE_CONF"],
+    "resultType": "NONE",
+    "macroRoles": [
+        {
+            "type": "MANAGED_FOLDER",
+            "targetParamsKey": "weights_folder"
+        }
+    ]
+}

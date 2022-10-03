@@ -1,0 +1,23 @@
+{
+    "meta": {
+        "label": "Hugging Face credentials",
+        "description": "Define presets to log into Hugging Face in order to download weights",
+        "icon": "icon-cloud"
+    },
+    "defaultDefinableAtProjectLevel": true,
+    "defaultDefinableInline": true,
+    "params": [
+        {
+            "name": "username",
+            "label": "Username",
+            "type": "STRING",
+            "mandatory": true
+        },
+        {
+            "name": "access_token",
+            "label": "Access token",
+            "type": "PASSWORD",
+            "mandatory": true
+        }
+    ]
+}
