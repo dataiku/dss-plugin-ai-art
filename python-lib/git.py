@@ -17,8 +17,6 @@ Source: https://stackoverflow.com/a/43022442
 """
 
 
-# TODO: Manually check if LFS is enabled. Currently, it silently fails
-# if it's not
 def shallow_clone(repo, dir_, *, username, password):
     """Perform a shallow clone of a password-protected HTTP Git repo
 
@@ -45,3 +43,18 @@ def shallow_clone(repo, dir_, *, username, password):
         check=True,
         env=env,
     )
+
+
+def check_lfs():
+    """Assert that LFS is installed
+
+    Raises `RuntimeError` if it's not installed
+    """
+    try:
+        # The LFS config options are set when you run `git lfs install`
+        subprocess.run(
+            ("git", "config", "--get-regexp", r"^filter\.lfs\."), check=True
+        )
+    except subprocess.CalledProcessError as e:
+        # TODO: improve error message
+        raise RuntimeError("git-lfs isn't installed") from e

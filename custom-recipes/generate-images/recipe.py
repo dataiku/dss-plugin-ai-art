@@ -17,17 +17,31 @@ image_folder = dataiku.Folder(image_folder_name)
 recipe_config = get_recipe_config()
 prompt = recipe_config["prompt"]
 image_count = recipe_config["image_count"]
+batch_size = recipe_config["batch_size"]
 filename_prefix = recipe_config["filename_prefix"]
+device = recipe_config["device"]
+clear_folder = recipe_config["clear_folder"]
+image_height = recipe_config["image_height"]
+image_width = recipe_config["image_width"]
 
-# TODO: figure out if there's a better way so store the weights. The
+# TODO: figure out if there's a better way to store the weights. The
 # current method only works if the folder is on the local FS.
 # https://huggingface.co/docs/diffusers/v0.3.0/en/api/diffusion_pipeline#diffusers.DiffusionPipeline.from_pretrained
 weights_path = weights_folder.get_path()
+if device == "auto":
+    device_id = None
+else:
+    device_id = device
 
-logging.info("Generating %s images", image_count)
-generator = ImageGenerator(weights_path)
-images = generator.generate_images(prompt, image_count)
+generator = ImageGenerator(weights_path, device_id)
 
+if clear_folder:
+    logging.info("Clearing image folder")
+    image_folder.clear()
+
+images = generator.generate_images(
+    prompt, image_count, batch_size, height=image_height, width=image_width
+)
 for i, image in enumerate(images):
     filename = f"{filename_prefix}{i+1}.png"
 

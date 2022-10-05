@@ -27,6 +27,10 @@ class DownloadWeights(Runnable):
         self.hugging_face_username = credentials["username"]
         self.hugging_face_access_token = credentials["access_token"]
 
+        # If LFS isn't installed, `git clone` will quietly download fake
+        # placeholder files, which is confusing
+        git.check_lfs()
+
     def get_progress_target(self):
         """
         If the runnable will return some progress info, have this
