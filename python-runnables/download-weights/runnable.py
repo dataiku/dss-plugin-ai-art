@@ -22,6 +22,7 @@ class DownloadWeights(Runnable):
         self.model_repo = urljoin(
             self.HUGGING_FACE_BASE_URL, config["model_repo"]
         )
+        self.revision = config["revision"]
 
         credentials = config["hugging_face_credentials"]
         self.hugging_face_username = credentials["username"]
@@ -52,6 +53,7 @@ class DownloadWeights(Runnable):
         git.shallow_clone(
             self.model_repo,
             file_path,
+            branch=self.revision,
             username=self.hugging_face_username,
             password=self.hugging_face_access_token,
         )

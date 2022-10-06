@@ -24,6 +24,19 @@
             "defaultValue": "CompVis/stable-diffusion-v1-4",
             "mandatory": true
         },
+        // TODO: Fetch the choice of branches dynamically via Python
+        {
+            "name": "revision",
+            "label": "Model revision",
+            "type": "SELECT",
+            "description": "Revision to download. \"fp16\" requires less VRAM, but generates lower-quality images",
+            "defaultValue": "main",
+            "mandatory": true,
+            "selectChoices": [
+                {"value": "main", "label": "main"},
+                {"value": "fp16", "label": "fp16"}
+            ]
+        },
         {
             "name": "hugging_face_credentials",
             "label": "Hugging Face credentials",

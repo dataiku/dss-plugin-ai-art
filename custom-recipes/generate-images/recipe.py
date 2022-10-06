@@ -1,6 +1,7 @@
 import logging
 
 import dataiku
+import torch
 from dataiku.customrecipe import (
     get_input_names_for_role,
     get_output_names_for_role,
@@ -23,24 +24,42 @@ device = recipe_config["device"]
 clear_folder = recipe_config["clear_folder"]
 image_height = recipe_config["image_height"]
 image_width = recipe_config["image_width"]
+use_autocast = recipe_config["use_autocast"]
+use_half_precision = recipe_config["use_half_precision"]
 
 # TODO: figure out if there's a better way to store the weights. The
 # current method only works if the folder is on the local FS.
 # https://huggingface.co/docs/diffusers/v0.3.0/en/api/diffusion_pipeline#diffusers.DiffusionPipeline.from_pretrained
 weights_path = weights_folder.get_path()
+
 if device == "auto":
     device_id = None
 else:
     device_id = device
 
-generator = ImageGenerator(weights_path, device_id)
+if use_half_precision:
+    torch_dtype = torch.float16
+else:
+    # Use the default dtype of the model (float32)
+    torch_dtype = None
+
+generator = ImageGenerator(
+    weights_path,
+    device_id=device_id,
+    torch_dtype=torch_dtype,
+)
 
 if clear_folder:
     logging.info("Clearing image folder")
     image_folder.clear()
 
 images = generator.generate_images(
-    prompt, image_count, batch_size, height=image_height, width=image_width
+    prompt,
+    image_count,
+    batch_size,
+    height=image_height,
+    width=image_width,
+    use_autocast=use_autocast,
 )
 for i, image in enumerate(images):
     filename = f"{filename_prefix}{i+1}.png"

@@ -4,9 +4,8 @@
         "description": "Generate images from a text prompt using Stable Diffusion",
         "icon": "icon-picture"
     },
-
     "kind": "PYTHON",
-
+    "selectableFromFolder": "weights_folder",
     "inputRoles": [
         {
             "name": "weights_folder",
@@ -18,7 +17,6 @@
             "acceptsManagedFolder": true
         }
     ],
-
     "outputRoles": [
         {
             "name": "image_folder",
@@ -30,7 +28,6 @@
             "acceptsManagedFolder": true
         }
     ],
-
     "paramsPythonSetup": "compute_available_devices.py",
     "params": [
         {
@@ -102,8 +99,25 @@
             "defaultValue": 512,
             "minI": 1,
             "mandatory": true
+        },
+        {
+            "type": "BOOLEAN",
+            "name": "use_autocast",
+            "label": "CUDA autocast",
+            "description": "Enable autocasting when using CUDA. Faster, but has a negligible quality loss",
+            "defaultValue": true,
+            "mandatory": true
+        },
+        // TODO: Also add the option to change the branch to fp16 when downloading the model
+        // https://huggingface.co/docs/diffusers/optimization/fp16#half-precision-weights
+        {
+            "type": "BOOLEAN",
+            "name": "use_half_precision",
+            "label": "Half precision",
+            "description": "Use half precision (16-bit) floats. Reduces VRAM usage, but lowers quality",
+            "defaultValue": false,
+            "mandatory": true
         }
     ],
-
     "resourceKeys": []
 }
