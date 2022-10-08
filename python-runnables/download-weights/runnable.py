@@ -1,16 +1,14 @@
 import logging
-from urllib.parse import urljoin
 
 import dataiku
 from dataiku.runnables import Runnable
 
 import git
+from params import resolve_model_repo
 
 
 class DownloadWeights(Runnable):
     """Download Hugging Face weights to a managed folder"""
-
-    HUGGING_FACE_BASE_URL = "https://huggingface.co"
 
     def __init__(self, project_key, config, plugin_config):
         """
@@ -19,9 +17,7 @@ class DownloadWeights(Runnable):
         :param plugin_config: contains the plugin settings
         """
         self.weights_folder = dataiku.Folder(config["weights_folder"])
-        self.model_repo = urljoin(
-            self.HUGGING_FACE_BASE_URL, config["model_repo"]
-        )
+        self.model_repo = resolve_model_repo(config)
         self.revision = config["revision"]
 
         credentials = config["hugging_face_credentials"]

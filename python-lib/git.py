@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 import subprocess
 
 _CREDENTIAL_HELPER = (
@@ -18,6 +19,34 @@ Source: https://stackoverflow.com/a/43022442
 """
 
 
+def _run_git_with_auth(command, username, password, **kwargs):
+    """Run the given Git command with authentication
+
+    command (iterable of str): Partial command to run,
+        e.g. `["clone", "https://REPO"]`
+    username (str): Username to authenticate with the HTTP Git server
+    password (str): Password to authenticate with the HTTP Git server
+    kwargs: Extra kwargs to pass to `subprocess.run()`
+
+    Returns the output of `subprocess.run()`
+
+    The `env` kwarg, if supplied, will be ignored
+    """
+    env = os.environ.copy()
+    env["GIT_USER"] = username
+    env["GIT_PASSWORD"] = password
+    kwargs["env"] = env
+
+    full_command = (
+        "git",
+        "-c",
+        f"credential.helper={_CREDENTIAL_HELPER}",
+    ) + tuple(command)
+
+    logging.info("Running command: %s", full_command)
+    return subprocess.run(full_command, **kwargs)
+
+
 def shallow_clone(repo, dir_, *, branch, username, password):
     """Perform a shallow clone of a password-protected HTTP Git repo
 
@@ -27,14 +56,7 @@ def shallow_clone(repo, dir_, *, branch, username, password):
     username (str): Username used to log into the remote repo
     password (str): Password used to log into the remote repo
     """
-    env = os.environ.copy()
-    env["GIT_USER"] = username
-    env["GIT_PASSWORD"] = password
-
     command = (
-        "git",
-        "-c",
-        f"credential.helper={_CREDENTIAL_HELPER}",
         "clone",
         "--depth=1",
         f"--branch={branch}",
@@ -42,8 +64,67 @@ def shallow_clone(repo, dir_, *, branch, username, password):
         repo,
         dir_,
     )
-    logging.info("Running command: %s", command)
-    subprocess.run(command, check=True, env=env)
+    _run_git_with_auth(command, username, password, check=True)
+
+
+_PARSE_BRANCH_REGEX = re.compile(
+    r"""
+    \b
+    refs/heads/
+    (?P<branch>
+        [^\s/]+  # Match all chars except whitespace or '/'
+    )
+    (?:
+        \s+|$  # Branch name must be followed by whitespace or end-of-line
+    )
+    """,
+    re.VERBOSE,
+)
+"""Match the branch name from a line returned by `git ls-remote`
+
+Example line:
+    52b46db8e14744892bb7ee014fc1cbb8c408643f refs/heads/main
+Result:
+    main
+"""
+
+
+def _parse_branch_from_line(line):
+    """Parse the branch name from a line from `git ls-remote`
+
+    Returns the branch name.
+    If no branch name is found, logs a warning and returns `None`.
+    """
+    result = _PARSE_BRANCH_REGEX.search(line)
+    if result:
+        return result.group("branch")
+
+    logging.warning("Unable to parse branch line: %r", line)
+    return None
+
+
+def get_branches(repo, *, username, password):
+    """Get the branches of a password-protected remote repo
+
+    repo (str): Git repo to clone
+    username (str): Username used to log into the remote repo
+    password (str): Password used to log into the remote repo
+
+    Returns a generator of branches (str)
+    """
+    command = ("ls-remote", "--heads", "--", repo)
+    proc = _run_git_with_auth(
+        command,
+        username,
+        password,
+        check=True,
+        stdout=subprocess.PIPE,
+        text=True,
+    )
+    for line in proc.stdout.splitlines():
+        branch = _parse_branch_from_line(line)
+        if branch:
+            yield branch
 
 
 def check_lfs():

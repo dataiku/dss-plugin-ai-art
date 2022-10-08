@@ -6,6 +6,7 @@
         "icon": "icon-download"
     },
     "impersonate": true,
+    "paramsPythonSetup": "compute_model_revisions.py",
     "params": [
         {
             "name": "weights_folder",
@@ -14,28 +15,40 @@
             "description": "Folder that the weights will be downloaded to",
             "mandatory": true
         },
-        // TODO: add choices for model_repo
         // TODO: add a disclaimer about the model's license (CreativeML Open RAIL-M)
         {
             "name": "model_repo",
             "label": "Model repo",
-            "type": "STRING",
-            "description": "Hugging Face repository to download the weights from",
+            "type": "SELECT",
+            "description": "Hugging Face repo to download the weights from",
             "defaultValue": "CompVis/stable-diffusion-v1-4",
-            "mandatory": true
+            "mandatory": true,
+            "selectChoices": [
+                {"value": "CompVis/stable-diffusion-v1-1", "label": "CompVis/stable-diffusion-v1-1"},
+                {"value": "CompVis/stable-diffusion-v1-2", "label": "CompVis/stable-diffusion-v1-2"},
+                {"value": "CompVis/stable-diffusion-v1-3", "label": "CompVis/stable-diffusion-v1-3"},
+                {"value": "CompVis/stable-diffusion-v1-4", "label": "CompVis/stable-diffusion-v1-4"},
+                {"value": "CUSTOM", "label": "Custom..."}
+            ]
+        },
+        {
+            "name": "custom_model_repo",
+            "label": "Custom model repo",
+            "type": "STRING",
+            "description": "Enter the name of a Hugging Face repo",
+            "mandatory": false,
+            "visibilityCondition": "model.model_repo == 'CUSTOM'"
         },
         // TODO: Fetch the choice of branches dynamically via Python
         {
             "name": "revision",
             "label": "Model revision",
             "type": "SELECT",
-            "description": "Revision to download. \"fp16\" requires less VRAM, but generates lower-quality images",
+            "description": "Revision to download. \"fp16\" is intended to be used with half precision (enabled in the recipe settings)",
             "defaultValue": "main",
             "mandatory": true,
-            "selectChoices": [
-                {"value": "main", "label": "main"},
-                {"value": "fp16", "label": "fp16"}
-            ]
+            "getChoicesFromPython": true,
+            "triggerParameters": ["model_repo", "custom_model_repo", "hugging_face_credentials"]
         },
         {
             "name": "hugging_face_credentials",
@@ -43,13 +56,15 @@
             "type": "PRESET",
             "description": "User credentials used to access Hugging Face",
             "parameterSetId": "hugging-face-credentials",
-            // TODO: make this not mandatory if the user is given the option to select any git repo
             "mandatory": true
         }
     ],
     "permissions": ["WRITE_CONF"],
     "resultType": "NONE",
     "macroRoles": [
+        {
+            "type": "PROJECT_MACROS"
+        },
         {
             "type": "MANAGED_FOLDER",
             "targetParamsKey": "weights_folder"
