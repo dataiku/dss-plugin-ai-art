@@ -3,8 +3,8 @@ import logging
 import dataiku
 from dataiku.runnables import Runnable
 
-import git
-from params import resolve_model_repo
+from ai_art import git
+from ai_art.params import resolve_model_repo
 
 
 class DownloadWeights(Runnable):

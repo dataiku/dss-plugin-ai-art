@@ -29,10 +29,14 @@ def _run_git_with_auth(command, username, password, **kwargs):
     kwargs: Extra kwargs to pass to `subprocess.run()`
 
     Returns the output of `subprocess.run()`
-
-    The `env` kwarg, if supplied, will be ignored
     """
-    env = os.environ.copy()
+    if "env" in kwargs:
+        # Add the auth env-vars to the user-provided env dict
+        env = kwargs["env"].copy()
+    else:
+        # Inherit the parent env-vars when the env kwarg isn't set
+        env = os.environ.copy()
+
     env["GIT_USER"] = username
     env["GIT_PASSWORD"] = password
     kwargs["env"] = env
@@ -113,6 +117,11 @@ def get_branches(repo, *, username, password):
     Returns a generator of branches (str)
     """
     command = ("ls-remote", "--heads", "--", repo)
+
+    # Force the locale so the output doesn't change
+    env = os.environ.copy()
+    env["LC_ALL"] = "C"
+
     proc = _run_git_with_auth(
         command,
         username,
@@ -120,6 +129,7 @@ def get_branches(repo, *, username, password):
         check=True,
         stdout=subprocess.PIPE,
         text=True,
+        env=env,
     )
     for line in proc.stdout.splitlines():
         branch = _parse_branch_from_line(line)

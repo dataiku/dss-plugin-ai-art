@@ -1,8 +1,8 @@
 import logging
 
-import git
-from constants import DEFAULT_REVISIONS
-from params import resolve_model_repo
+from ai_art import git
+from ai_art.constants import DEFAULT_REVISIONS
+from ai_art.params import resolve_model_repo
 
 
 def _get_branches_from_remote(config):

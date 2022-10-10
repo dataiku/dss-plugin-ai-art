@@ -1,6 +1,6 @@
 from urllib.parse import urljoin
 
-from constants import HUGGING_FACE_BASE_URL
+from ai_art.constants import HUGGING_FACE_BASE_URL
 
 
 def resolve_model_repo(config):

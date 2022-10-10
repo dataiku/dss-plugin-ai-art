@@ -8,7 +8,7 @@ from dataiku.customrecipe import (
     get_recipe_config,
 )
 
-from generate_image import ImageGenerator
+from ai_art.generate_image import ImageGenerator
 
 weights_folder_name = get_input_names_for_role("weights_folder")[0]
 image_folder_name = get_output_names_for_role("image_folder")[0]
