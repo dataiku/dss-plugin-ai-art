@@ -21,6 +21,7 @@ generator = ImageGenerator(
     params.weights_path,
     device_id=params.device_id,
     torch_dtype=params.torch_dtype,
+    enable_attention_slicing=params.enable_attention_slicing,
 )
 
 if params.clear_folder:
@@ -34,6 +35,8 @@ images = generator.generate_images(
     height=params.image_height,
     width=params.image_width,
     use_autocast=params.use_autocast,
+    num_inference_steps=params.num_inference_steps,
+    guidance_scale=params.guidance_scale,
 )
 
 save_images(images, params.image_folder, params.filename_prefix)

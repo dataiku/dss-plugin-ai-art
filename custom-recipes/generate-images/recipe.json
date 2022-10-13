@@ -108,14 +108,38 @@
             "defaultValue": true,
             "mandatory": true
         },
-        // TODO: Also add the option to change the branch to fp16 when downloading the model
-        // https://huggingface.co/docs/diffusers/optimization/fp16#half-precision-weights
         {
             "type": "BOOLEAN",
             "name": "use_half_precision",
             "label": "Half precision",
             "description": "Use half precision (16-bit) floats. Reduces VRAM usage, but lowers quality",
             "defaultValue": false,
+            "mandatory": true
+        },
+        {
+            "type": "BOOLEAN",
+            "name": "enable_attention_slicing",
+            "label": "Attention slicing",
+            "description": "Generate each image in steps instead of all at once. Reduces VRAM usage, but is slightly slower",
+            "defaultValue": true,
+            "mandatory": true
+        },
+        {
+            "type": "INT",
+            "name": "num_inference_steps",
+            "label": "Denoising steps",
+            "description": "Number of denoising steps. More steps increases quality, but is slower",
+            "defaultValue": 50,
+            "minI": 1,
+            "mandatory": true
+        },
+        {
+            "type": "DOUBLE",
+            "name": "guidance_scale",
+            "label": "Guidance scale",
+            "description": "Guidance scale. Higher values generate images more closely linked to the text prompt, at the expense of lower quality",
+            "defaultValue": 7.5,
+            "minD": 0.0,
             "mandatory": true
         }
     ],

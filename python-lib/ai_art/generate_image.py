@@ -8,7 +8,14 @@ from diffusers import StableDiffusionPipeline
 class ImageGenerator:
     __slots__ = ("_pipe", "_device")
 
-    def __init__(self, weights_path, *, device_id=None, torch_dtype=None):
+    def __init__(
+        self,
+        weights_path,
+        *,
+        device_id=None,
+        torch_dtype=None,
+        enable_attention_slicing=False,
+    ):
         """
         weights_path (str or path-like): Path to a local folder that
             contains the Stable Diffusion weights
@@ -17,13 +24,19 @@ class ImageGenerator:
                 the CPU will be used
         torch_dtype (torch.dtype | None): Override the default
             `torch.dtype` and load the model under this dtype
+        enable_attention_slicing (bool): Enable sliced attention
+            computation when generating the images
         """
         self._init_device(device_id)
+
         logging.info("Loading weights")
         pipe = StableDiffusionPipeline.from_pretrained(
             weights_path, torch_dtype=torch_dtype
         )
         self._pipe = pipe.to(self._device)
+
+        if enable_attention_slicing:
+            self._pipe.enable_attention_slicing()
 
     def _init_device(self, device_id):
         # TODO: test this with multiple devices
@@ -41,7 +54,14 @@ class ImageGenerator:
             self._device = torch.device(device_id)
 
     def _generate_image_batch(
-        self, prompt, image_count, height, width, use_autocast
+        self,
+        prompt,
+        image_count,
+        height,
+        width,
+        use_autocast,
+        num_inference_steps,
+        guidance_scale,
     ):
         """Generate a single batch of images
 
@@ -55,16 +75,23 @@ class ImageGenerator:
                 # TODO: make the resolution and other params
                 # configurable:
                 # https://huggingface.co/docs/diffusers/v0.3.0/en/api/pipelines/stable_diffusion#diffusers.StableDiffusionPipeline.__call__
-                output = self._pipe(prompts, height=height, width=width)
+                output = self._pipe(
+                    prompts,
+                    height=height,
+                    width=width,
+                    num_inference_steps=num_inference_steps,
+                    guidance_scale=guidance_scale,
+                )
         else:
             output = self._pipe(prompts, height=height, width=width)
 
         return output.images
 
     # TODO: Add presets based on target VRAM usage.
-    # See https://huggingface.co/docs/diffusers/optimization/fp16
-    # TODO: Add support for Apple Metal:
-    # https://huggingface.co/docs/diffusers/optimization/mps
+    # TODO: Add all optimizations:
+    #   https://huggingface.co/docs/diffusers/optimization/fp16
+    # TODO: try to use num_images_per_prompt instead of passing the same
+    #   prompt multiple times.
     def generate_images(
         self,
         prompt,
@@ -74,6 +101,8 @@ class ImageGenerator:
         height=512,
         width=512,
         use_autocast=True,
+        num_inference_steps=50,
+        guidance_scale=7.5,
     ):
         """Generate images based on the text prompt
 
@@ -88,6 +117,8 @@ class ImageGenerator:
             of 64
         use_autocast (bool): Use `torch.autocast` when possible. Only
             available for CUDA devices
+        num_inference_steps (int): Number of denoising steps
+        guidance_scale (float): Guidance scale
 
         The height and width must be a multiple of 64 due to this issue:
             https://github.com/CompVis/stable-diffusion/issues/60
@@ -122,7 +153,13 @@ class ImageGenerator:
 
             logging.info("Generating batch %s", i + 1)
             images = self._generate_image_batch(
-                prompt, current_batch_size, height, width, use_autocast
+                prompt,
+                current_batch_size,
+                height,
+                width,
+                use_autocast,
+                num_inference_steps,
+                guidance_scale,
             )
 
             image_processed_count += current_batch_size

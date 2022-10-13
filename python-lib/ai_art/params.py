@@ -45,6 +45,9 @@ class GenerateImagesParams:
     image_width: int
     use_autocast: bool
     torch_dtype: Optional[torch.dtype]
+    enable_attention_slicing: bool
+    num_inference_steps: int
+    guidance_scale: float
 
     @classmethod
     def from_config(
@@ -80,13 +83,16 @@ class GenerateImagesParams:
             weights_path=weights_path,
             image_folder=image_folder,
             prompt=recipe_config["prompt"],
-            image_count=recipe_config["image_count"],
-            batch_size=recipe_config["batch_size"],
+            image_count=int(recipe_config["image_count"]),
+            batch_size=int(recipe_config["batch_size"]),
             filename_prefix=recipe_config["filename_prefix"],
             device_id=device_id,
             clear_folder=recipe_config["clear_folder"],
-            image_height=recipe_config["image_height"],
-            image_width=recipe_config["image_width"],
+            image_height=int(recipe_config["image_height"]),
+            image_width=int(recipe_config["image_width"]),
             use_autocast=recipe_config["use_autocast"],
             torch_dtype=torch_dtype,
+            enable_attention_slicing=recipe_config["enable_attention_slicing"],
+            num_inference_steps=int(recipe_config["num_inference_steps"]),
+            guidance_scale=recipe_config["guidance_scale"],
         )
