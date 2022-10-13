@@ -8,6 +8,7 @@ from dataiku.customrecipe import (
 
 from ai_art.generate_image import ImageGenerator
 from ai_art.params import GenerateImagesParams
+from ai_art.save import save_images
 
 weights_folder_name = get_input_names_for_role("weights_folder")[0]
 image_folder_name = get_output_names_for_role("image_folder")[0]
@@ -34,10 +35,5 @@ images = generator.generate_images(
     width=params.image_width,
     use_autocast=params.use_autocast,
 )
-for i, image in enumerate(images):
-    filename = f"{params.filename_prefix}{i+1}.png"
 
-    logging.info("Saving image: %s", filename)
-    with params.image_folder.get_writer(filename) as f:
-        # TODO: make the format configurable
-        image.save(f, format="PNG")
+save_images(images, params.image_folder, params.filename_prefix)
