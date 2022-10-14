@@ -67,35 +67,29 @@ class ImageGenerator:
 
         Returns a list of images that were generated
         """
-        # 1 image is generated per prompt
-        prompts = [prompt] * image_count
+        kwargs = {
+            "prompt": prompt,
+            "num_images_per_prompt": image_count,
+            "height": height,
+            "width": width,
+            "num_inference_steps": num_inference_steps,
+            "guidance_scale": guidance_scale,
+        }
 
         if use_autocast:
             with torch.autocast(self._device.type):
-                # TODO: make the resolution and other params
-                # configurable:
-                # https://huggingface.co/docs/diffusers/v0.3.0/en/api/pipelines/stable_diffusion#diffusers.StableDiffusionPipeline.__call__
-                output = self._pipe(
-                    prompts,
-                    height=height,
-                    width=width,
-                    num_inference_steps=num_inference_steps,
-                    guidance_scale=guidance_scale,
-                )
+                output = self._pipe(**kwargs)
         else:
-            output = self._pipe(prompts, height=height, width=width)
+            output = self._pipe(**kwargs)
 
         return output.images
 
-    # TODO: Add presets based on target VRAM usage.
     # TODO: Add all optimizations:
     #   https://huggingface.co/docs/diffusers/optimization/fp16
-    # TODO: try to use num_images_per_prompt instead of passing the same
-    #   prompt multiple times.
     def generate_images(
         self,
         prompt,
-        image_count,
+        image_count=1,
         batch_size=None,
         *,
         height=512,

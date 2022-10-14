@@ -16,6 +16,8 @@ def _get_branches_from_remote(config):
         username=hugging_face_username,
         password=hugging_face_access_token,
     )
+    # Exhaust the generator so that any errors are caught by the
+    # try-block
     return tuple(branches)
 
 
