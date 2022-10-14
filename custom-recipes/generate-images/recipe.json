@@ -57,12 +57,51 @@
             "visibilityCondition": "model.image_count > 1"
         },
         {
+            "type": "BOOLEAN",
+            "name": "use_half_precision",
+            "label": "Half precision",
+            "description": "Use half-precision (16-bit) floats. Check this if you're using the 'fp16' revision of the weights",
+            "defaultValue": false,
+            "mandatory": true
+        },
+        {
+            "type": "BOOLEAN",
+            "name": "show_advanced",
+            "label": "Show advanced settings",
+            "defaultValue": false,
+            "mandatory": true
+        },
+
+        {
+            "type": "SEPARATOR",
+            "name": "folder-separator",
+            "label": "Folder settings",
+            "visibilityCondition": "model.show_advanced"
+        },
+        {
+            "type": "BOOLEAN",
+            "name": "clear_folder",
+            "label": "Clear folder",
+            "description": "Delete all existing files in the image folder before each run",
+            "defaultValue": true,
+            "mandatory": true,
+            "visibilityCondition": "model.show_advanced"
+        },
+        {
             "type": "STRING",
             "name": "filename_prefix",
             "label": "Filename prefix",
             "description": "Prefix of the filename that the images will be saved as",
             "defaultValue": "image-",
-            "mandatory": true
+            "mandatory": true,
+            "visibilityCondition": "model.show_advanced"
+        },
+
+        {
+            "type": "SEPARATOR",
+            "name": "cuda-separator",
+            "label": "CUDA settings",
+            "visibilityCondition": "model.show_advanced"
         },
         {
             "type": "SELECT",
@@ -71,15 +110,24 @@
             "defaultValue": "auto",
             "mandatory": true,
             "getChoicesFromPython": true,
-            "disableAutoReload": true
+            "disableAutoReload": true,
+            "visibilityCondition": "model.show_advanced"
         },
         {
             "type": "BOOLEAN",
-            "name": "clear_folder",
-            "label": "Clear folder",
-            "description": "Delete all existing images in the image folder before each run",
+            "name": "use_autocast",
+            "label": "CUDA autocast",
+            "description": "Enable autocasting when using CUDA. Faster, but has a negligible quality loss",
             "defaultValue": true,
-            "mandatory": true
+            "mandatory": true,
+            "visibilityCondition": "model.show_advanced"
+        },
+
+        {
+            "type": "SEPARATOR",
+            "name": "image-seperator",
+            "label": "Image settings",
+            "visibilityCondition": "model.show_advanced"
         },
         // TODO: document best practices when choosing image size: https://huggingface.co/blog/stable_diffusion
         {
@@ -89,7 +137,8 @@
             "description": "Height (in pixels) of the generated images. Must be a multiple of 64",
             "defaultValue": 512,
             "minI": 1,
-            "mandatory": true
+            "mandatory": true,
+            "visibilityCondition": "model.show_advanced"
         },
         {
             "type": "INT",
@@ -98,23 +147,8 @@
             "description": "Width (in pixels) of the generated images. Must be a multiple of 64",
             "defaultValue": 512,
             "minI": 1,
-            "mandatory": true
-        },
-        {
-            "type": "BOOLEAN",
-            "name": "use_autocast",
-            "label": "CUDA autocast",
-            "description": "Enable autocasting when using CUDA. Faster, but has a negligible quality loss",
-            "defaultValue": true,
-            "mandatory": true
-        },
-        {
-            "type": "BOOLEAN",
-            "name": "use_half_precision",
-            "label": "Half precision",
-            "description": "Use half precision (16-bit) floats. Reduces VRAM usage, but lowers quality",
-            "defaultValue": false,
-            "mandatory": true
+            "mandatory": true,
+            "visibilityCondition": "model.show_advanced"
         },
         {
             "type": "BOOLEAN",
@@ -122,7 +156,8 @@
             "label": "Attention slicing",
             "description": "Generate each image in steps instead of all at once. Reduces VRAM usage, but is slightly slower",
             "defaultValue": true,
-            "mandatory": true
+            "mandatory": true,
+            "visibilityCondition": "model.show_advanced"
         },
         {
             "type": "INT",
@@ -131,7 +166,8 @@
             "description": "Number of denoising steps. More steps increases quality, but is slower",
             "defaultValue": 50,
             "minI": 1,
-            "mandatory": true
+            "mandatory": true,
+            "visibilityCondition": "model.show_advanced"
         },
         {
             "type": "DOUBLE",
@@ -140,7 +176,8 @@
             "description": "Guidance scale. Higher values generate images more closely linked to the text prompt, at the expense of lower quality",
             "defaultValue": 7.5,
             "minD": 0.0,
-            "mandatory": true
+            "mandatory": true,
+            "visibilityCondition": "model.show_advanced"
         }
     ],
     "resourceKeys": []

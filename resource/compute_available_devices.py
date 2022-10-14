@@ -4,7 +4,7 @@ import torch
 def do(payload, config, plugin_config, inputs):
     """Compute a list of PyTorch devices for the "device" param"""
     choices = [
-        {"value": "auto", "label": "Auto select"},
+        {"value": "auto", "label": "Auto"},
         {"value": "cpu", "label": "CPU (disable CUDA)"},
     ]
 
