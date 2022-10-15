@@ -3,7 +3,7 @@ import logging
 import math
 
 import torch
-from diffusers import StableDiffusionPipeline
+from diffusers import StableDiffusionImg2ImgPipeline, StableDiffusionPipeline
 
 
 class _BaseImageGenerator(abc.ABC):
@@ -188,13 +188,63 @@ class TextToImage(_BaseImageGenerator):
 
         Yields a generator of images that were generated
         """
-        return self._generate_image_batches(
+        yield from self._generate_image_batches(
             prompt=prompt,
             image_count=image_count,
             batch_size=batch_size,
             use_autocast=use_autocast,
             height=height,
             width=width,
+            num_inference_steps=num_inference_steps,
+            guidance_scale=guidance_scale,
+        )
+
+
+class TextGuidedImageToImage(_BaseImageGenerator):
+    """Generate images from a base image, guided by a text prompt"""
+
+    def _init_pipe(self, weights_path, torch_dtype):
+        pipe = StableDiffusionImg2ImgPipeline.from_pretrained(
+            weights_path, torch_dtype=torch_dtype
+        )
+        self._pipe = pipe.to(self._device)
+
+    def generate_images(
+        self,
+        prompt,
+        init_image,
+        image_count=1,
+        batch_size=None,
+        *,
+        use_autocast=True,
+        strength=0.8,
+        num_inference_steps=50,
+        guidance_scale=7.5,
+    ):
+        """Generate images based on the init image, guided by the prompt
+
+        prompt (str): Text description that will be used to generate the
+            images
+        init_image (PIL.Image.Image): Base image that the output images
+            will be based on
+        image_count (int): Number of images to generate
+        batch_size (int | None): Number of images to generate at once,
+            or `None` to generate all images at once
+        use_autocast (bool): Use `torch.autocast` when possible. Only
+            available for CUDA devices
+        strength (float): Indicates how much to transform `init_image`
+        num_inference_steps (int): Number of denoising steps
+        guidance_scale (float): Guidance scale
+
+        Yields a generator of images that were generated
+        """
+        yield from self._generate_image_batches(
+            prompt=prompt,
+            init_image=init_image,
+            image_count=image_count,
+            batch_size=batch_size,
+            use_autocast=use_autocast,
+            strength=strength,
             num_inference_steps=num_inference_steps,
             guidance_scale=guidance_scale,
         )

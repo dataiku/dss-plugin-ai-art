@@ -1,7 +1,7 @@
 {
     "meta": {
-        "label": "Generate images",
-        "description": "Generate images from a text prompt using Stable Diffusion",
+        "label": "Text-Guided Image-to-Image Generation",
+        "description": "Generate images from a base image and a guiding text prompt using Stable Diffusion",
         "icon": "icon-picture"
     },
     "kind": "PYTHON",
@@ -11,6 +11,15 @@
             "name": "weights_folder",
             "label": "Weights folder",
             "description": "Folder that contains the Stable Diffusion weights",
+            "arity": "UNARY",
+            "required": true,
+            "acceptsDataset" : false,
+            "acceptsManagedFolder": true
+        },
+        {
+            "name": "base_image_folder",
+            "label": "Base image folder",
+            "description": "Folder that contains the base images",
             "arity": "UNARY",
             "required": true,
             "acceptsDataset" : false,
@@ -35,6 +44,13 @@
             "name": "prompt",
             "label": "Prompt",
             "description": "Text prompt used to generate the images",
+            "mandatory": true
+        },
+        {
+            "type": "STRING",
+            "name": "base_image_path",
+            "label": "Base image",
+            "description": "Filepath of the base image within the base image folder, e.g. 'image.png'",
             "mandatory": true
         },
         {
@@ -129,27 +145,6 @@
             "label": "Image settings",
             "visibilityCondition": "model.show_advanced"
         },
-        // TODO: document best practices when choosing image size: https://huggingface.co/blog/stable_diffusion
-        {
-            "type": "INT",
-            "name": "image_height",
-            "label": "Image height",
-            "description": "Height (in pixels) of the generated images. Must be a multiple of 64",
-            "defaultValue": 512,
-            "minI": 1,
-            "mandatory": true,
-            "visibilityCondition": "model.show_advanced"
-        },
-        {
-            "type": "INT",
-            "name": "image_width",
-            "label": "Image width",
-            "description": "Width (in pixels) of the generated images. Must be a multiple of 64",
-            "defaultValue": 512,
-            "minI": 1,
-            "mandatory": true,
-            "visibilityCondition": "model.show_advanced"
-        },
         {
             "type": "BOOLEAN",
             "name": "enable_attention_slicing",
@@ -166,6 +161,17 @@
             "description": "Number of denoising steps. More steps increases quality, but is slower",
             "defaultValue": 50,
             "minI": 1,
+            "mandatory": true,
+            "visibilityCondition": "model.show_advanced"
+        },
+        {
+            "type": "DOUBLE",
+            "name": "strength",
+            "label": "Strength",
+            "description": "How much to transform the base image. Smaller values mean that the generated images will more closely resemble the base image",
+            "defaultValue": 0.8,
+            "minD": 0.0,
+            "maxD": 1.0,
             "mandatory": true,
             "visibilityCondition": "model.show_advanced"
         },
