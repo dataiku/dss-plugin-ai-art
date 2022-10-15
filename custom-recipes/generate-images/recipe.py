@@ -6,7 +6,7 @@ from dataiku.customrecipe import (
     get_recipe_config,
 )
 
-from ai_art.generate_image import ImageGenerator
+from ai_art.generate_image import TextToImage
 from ai_art.params import GenerateImagesParams
 from ai_art.save import save_images
 
@@ -17,7 +17,7 @@ params = GenerateImagesParams.from_config(
     recipe_config, weights_folder_name, image_folder_name
 )
 
-generator = ImageGenerator(
+generator = TextToImage(
     params.weights_path,
     device_id=params.device_id,
     torch_dtype=params.torch_dtype,
@@ -32,9 +32,9 @@ images = generator.generate_images(
     params.prompt,
     params.image_count,
     params.batch_size,
+    use_autocast=params.use_autocast,
     height=params.image_height,
     width=params.image_width,
-    use_autocast=params.use_autocast,
     num_inference_steps=params.num_inference_steps,
     guidance_scale=params.guidance_scale,
 )
