@@ -148,5 +148,4 @@ def check_lfs():
         # The LFS config options are set when you run `git lfs install`
         subprocess.run(command, check=True)
     except subprocess.CalledProcessError as e:
-        # TODO: improve error message
         raise RuntimeError("git-lfs isn't installed") from e

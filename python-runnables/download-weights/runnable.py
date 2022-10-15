@@ -1,3 +1,4 @@
+import html
 import logging
 
 import dataiku
@@ -36,7 +37,6 @@ class DownloadWeights(Runnable):
         """
         return None
 
-    # TODO: add progress and a result
     def run(self, progress_callback):
         """
         Do stuff here. Can return a string or raise an exception.
@@ -53,3 +53,8 @@ class DownloadWeights(Runnable):
             username=self.hugging_face_username,
             password=self.hugging_face_access_token,
         )
+
+        result = html.escape(
+            f"Successfully downloaded weights from {self.model_repo}"
+        )
+        return result

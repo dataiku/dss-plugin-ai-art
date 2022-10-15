@@ -39,7 +39,6 @@
             "mandatory": false,
             "visibilityCondition": "model.model_repo == 'CUSTOM'"
         },
-        // TODO: Fetch the choice of branches dynamically via Python
         {
             "name": "revision",
             "label": "Model revision",
@@ -60,7 +59,7 @@
         }
     ],
     "permissions": ["WRITE_CONF"],
-    "resultType": "NONE",
+    "resultType": "HTML",
     "macroRoles": [
         {
             "type": "PROJECT_MACROS"
