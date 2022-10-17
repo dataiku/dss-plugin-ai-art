@@ -34,6 +34,7 @@ images = generator.generate_images(
     params.image_count,
     params.batch_size,
     use_autocast=params.use_autocast,
+    random_seed=params.random_seed,
     height=params.image_height,
     width=params.image_width,
     num_inference_steps=params.num_inference_steps,

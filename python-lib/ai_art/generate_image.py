@@ -75,7 +75,7 @@ class _BaseImageGenerator(abc.ABC):
 
         It must accept the following kwargs and pass them to
         `_generate_image_batches()`:
-            image_count, batch_size, use_autocast
+            image_count, batch_size, use_autocast, random_seed
 
         It may also accept other arguments. Any additional kwargs that
         are passed to `_generate_image_batches()` will be passed to the
@@ -99,7 +99,7 @@ class _BaseImageGenerator(abc.ABC):
         return output.images
 
     def _generate_image_batches(
-        self, *, image_count, batch_size, use_autocast, **kwargs
+        self, *, image_count, batch_size, use_autocast, random_seed, **kwargs
     ):
         """Generic base method that is called by `generate_images()`
 
@@ -127,6 +127,14 @@ class _BaseImageGenerator(abc.ABC):
             logging.info("autocast is disabled")
             use_autocast = False
 
+        if random_seed is None:
+            # Set the generator to `None` so that PyTorch generates a
+            # random seed for us
+            generator = None
+        else:
+            generator = torch.Generator(self._device)
+            generator = generator.manual_seed(random_seed)
+
         for i in range(batch_count):
             if image_processed_count + batch_size > image_count:
                 current_batch_size = image_count - image_processed_count
@@ -137,6 +145,7 @@ class _BaseImageGenerator(abc.ABC):
             images = self._generate_image_batch(
                 use_autocast=use_autocast,
                 num_images_per_prompt=current_batch_size,
+                generator=generator,
                 **kwargs,
             )
 
@@ -162,6 +171,7 @@ class TextToImage(_BaseImageGenerator):
         batch_size=None,
         *,
         use_autocast=True,
+        random_seed=None,
         height=512,
         width=512,
         num_inference_steps=50,
@@ -176,6 +186,8 @@ class TextToImage(_BaseImageGenerator):
             or `None` to generate all images at once
         use_autocast (bool): Use `torch.autocast` when possible. Only
             available for CUDA devices
+        random_seed (int | None): Random seed that's used to generate
+            the images
         height (int): Height (in pixels) of the images. Must be
             a multiple of 64
         width (int): Width (in pixels) of the images. Must be a multiple
@@ -193,6 +205,7 @@ class TextToImage(_BaseImageGenerator):
             image_count=image_count,
             batch_size=batch_size,
             use_autocast=use_autocast,
+            random_seed=random_seed,
             height=height,
             width=width,
             num_inference_steps=num_inference_steps,
@@ -217,6 +230,7 @@ class TextGuidedImageToImage(_BaseImageGenerator):
         batch_size=None,
         *,
         use_autocast=True,
+        random_seed=None,
         strength=0.8,
         num_inference_steps=50,
         guidance_scale=7.5,
@@ -232,6 +246,8 @@ class TextGuidedImageToImage(_BaseImageGenerator):
             or `None` to generate all images at once
         use_autocast (bool): Use `torch.autocast` when possible. Only
             available for CUDA devices
+        random_seed (int | None): Random seed that's used to generate
+            the images
         strength (float): Indicates how much to transform `init_image`
         num_inference_steps (int): Number of denoising steps
         guidance_scale (float): Guidance scale
@@ -244,6 +260,7 @@ class TextGuidedImageToImage(_BaseImageGenerator):
             image_count=image_count,
             batch_size=batch_size,
             use_autocast=use_autocast,
+            random_seed=random_seed,
             strength=strength,
             num_inference_steps=num_inference_steps,
             guidance_scale=guidance_scale,

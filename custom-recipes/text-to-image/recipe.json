@@ -47,16 +47,6 @@
             "minI": 1
         },
         {
-            "type": "INT",
-            "name": "batch_size",
-            "label": "Batch size",
-            "description": "Number of images to generate at once. Larger batch sizes are faster, but require more VRAM",
-            "mandatory": true,
-            "defaultValue": 2,
-            "minI": 1,
-            "visibilityCondition": "model.image_count > 1"
-        },
-        {
             "type": "BOOLEAN",
             "name": "use_half_precision",
             "label": "Half precision",
@@ -157,6 +147,24 @@
             "description": "Generate each image in steps instead of all at once. Reduces VRAM usage, but is slightly slower",
             "defaultValue": true,
             "mandatory": true,
+            "visibilityCondition": "model.show_advanced"
+        },
+        {
+            "type": "INT",
+            "name": "batch_size",
+            "label": "Batch size",
+            "description": "Number of images to generate at once. Larger batch sizes are sometimes faster, but require more VRAM",
+            "mandatory": true,
+            "defaultValue": 1,
+            "minI": 1,
+            "visibilityCondition": "model.show_advanced && model.image_count > 1"
+        },
+        {
+            "type": "INT",
+            "name": "random_seed",
+            "label": "Random seed",
+            "description": "Seed used to generate the images. Set this to a non-zero value to generate reproducible images",
+            "mandatory": false,
             "visibilityCondition": "model.show_advanced"
         },
         {

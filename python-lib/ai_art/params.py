@@ -48,6 +48,7 @@ class _BaseParams(abc.ABC):
     use_autocast: bool
     torch_dtype: Optional[torch.dtype]
     enable_attention_slicing: bool
+    random_seed: Optional[int]
     num_inference_steps: int
     guidance_scale: float
 
@@ -90,6 +91,13 @@ class _BaseParams(abc.ABC):
             # Use the default dtype of the model (float32)
             torch_dtype = None
 
+        random_seed = recipe_config.get("random_seed")
+        if random_seed:
+            random_seed = int(random_seed)
+        else:
+            # Set random_seed to `None` if the value is `0`
+            random_seed = None
+
         return {
             "weights_path": weights_path,
             "image_folder": image_folder,
@@ -104,6 +112,7 @@ class _BaseParams(abc.ABC):
             "enable_attention_slicing": recipe_config[
                 "enable_attention_slicing"
             ],
+            "random_seed": random_seed,
             "num_inference_steps": int(recipe_config["num_inference_steps"]),
             "guidance_scale": recipe_config["guidance_scale"],
         }
