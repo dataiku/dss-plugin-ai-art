@@ -3,7 +3,6 @@ AI Art
 
 .. TODO: add images
 .. TODO: add documentation for the recipes
-.. TODO: add documentation for CUDA (system requirements and minimum VRAM)
 
 This plugin allows you to generate images from text using
 `Stable Diffusion <stable-diffusion-wiki_>`_
@@ -16,6 +15,17 @@ This plugin allows you to generate images from text using
 
 How to set up
 =============
+
+CUDA
+----
+A CUDA-capable GPU with at least 6 GB of VRAM is recommended.
+You can run the plugin without a GPU, but it will be significantly slower.
+
+.. TODO: add documentation about installing CUDA
+.. TODO: also mention cuDNN if needed. unsure if it's required
+
+Download weights
+----------------
 Before you can use the plugin, you need pre-trained weights. You can download
 weights from Hugging Face using the provided macro.
 

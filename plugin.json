@@ -3,11 +3,11 @@
     "version": "0.0.1",
     "meta": {
         "label": "AI Art",
-        "description": "Generate images from text prompts using Stable Diffusion",
+        "description": "Use Stable Diffusion to generate images from text prompts",
         "author": "Dataiku (Zach McCallen)",
         "icon": "icon-picture",
-        "tags": [], //for example: ["Machine Learning", "NLP"]
-        "url": "",
+        "tags": ["AutoML", "Image", "Machine Learning", "NLP"],
+        "url": "", // TODO: add a link here
         "licenseInfo": "Apache Software License"
     }
 }

@@ -43,7 +43,7 @@
             "name": "revision",
             "label": "Model revision",
             "type": "SELECT",
-            "description": "Revision to download. \"fp16\" is intended to be used with half precision (enabled in the recipe settings)",
+            "description": "Revision to download. The \"fp16\" revision is recommended if you have less than 10 GB of VRAM",
             "defaultValue": "main",
             "mandatory": true,
             "getChoicesFromPython": true,
