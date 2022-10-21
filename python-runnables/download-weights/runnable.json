@@ -19,13 +19,14 @@
             "label": "Model repo",
             "type": "SELECT",
             "description": "Hugging Face repo to download the weights from",
-            "defaultValue": "CompVis/stable-diffusion-v1-4",
+            "defaultValue": "runwayml/stable-diffusion-v1-5",
             "mandatory": true,
             "selectChoices": [
                 {"value": "CompVis/stable-diffusion-v1-1", "label": "CompVis/stable-diffusion-v1-1"},
                 {"value": "CompVis/stable-diffusion-v1-2", "label": "CompVis/stable-diffusion-v1-2"},
                 {"value": "CompVis/stable-diffusion-v1-3", "label": "CompVis/stable-diffusion-v1-3"},
                 {"value": "CompVis/stable-diffusion-v1-4", "label": "CompVis/stable-diffusion-v1-4"},
+                {"value": "runwayml/stable-diffusion-v1-5", "label": "runwayml/stable-diffusion-v1-5"},
                 {"value": "CUSTOM", "label": "Custom..."}
             ]
         },

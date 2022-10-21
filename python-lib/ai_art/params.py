@@ -204,8 +204,9 @@ class TextGuidedImageToImageParams(_BaseParams):
         logging.info("Opening base image: %r", base_image_path)
         base_image = open_base_image(base_image_folder, base_image_path)
 
-        # The CompVis models work best with 512x512 images, as described
-        # in this article: https://huggingface.co/blog/stable_diffusion
+        # The Hugging Face models work best with 512x512 images, as
+        # described in this article:
+        # https://huggingface.co/blog/stable_diffusion
         if recipe_config["resize_base_image"]:
             base_image = resize_image(base_image, min_size=512)
 

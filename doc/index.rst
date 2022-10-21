@@ -29,9 +29,9 @@ Before you can use the plugin, you need pre-trained weights. You can download
 weights from Hugging Face using the provided macro.
 
 .. warning::
-   The CompVis weights available on Hugging Face are licensed under the
-   CreativeML OpenRAIL-M license, which restricts usage. You can view the
-   license `here <compvis-license_>`_.
+   The weights available on Hugging Face are licensed under the CreativeML
+   OpenRAIL-M license, which restricts usage. You can view the license
+   `here <compvis-license_>`_.
 
    If you don't agree with the license, you can alternatively use your own
    weights and skip this section
@@ -66,13 +66,13 @@ weights from Hugging Face using the provided macro.
     `account settings <hugging-face-token-settings_>`_. This will be used by DSS
     to access Hugging Face.
 
-#.  Choose the model that you want to download from
-    `CompVis' organization page <compvis_>`_, and agree to the license in order
-    to access the repository.
+#.  Choose the model that you want to download from `Runway's <runway-org_>`_ or
+    `CompVis' <compvis-org_>`_ organization page, and agree to the license in
+    order to access the repository.
 
     .. note::
        If you're not sure which model to choose, pick the one with the highest
-       version, e.g. *stable-diffusion-v1-4*.
+       version, e.g. *runwayml/stable-diffusion-v1-5*.
 
 #.  Create a managed folder in DSS, and download your chosen model to it using
     the *Download Stable Diffusion weights* macro.
@@ -126,7 +126,8 @@ image based on a text prompt.
 
 .. _hugging-face-sign-up: https://huggingface.co/join
 .. _hugging-face-token-settings: https://huggingface.co/settings/tokens
-.. _compvis: https://huggingface.co/CompVis
+.. _runway-org: https://huggingface.co/runwayml
+.. _compvis-org: https://huggingface.co/CompVis
 .. _compvis-license: https://huggingface.co/spaces/CompVis/stable-diffusion-license
 .. _git-lfs: https://git-lfs.github.com/
 .. _stable-diffusion-wiki: https://en.wikipedia.org/wiki/Stable_Diffusion

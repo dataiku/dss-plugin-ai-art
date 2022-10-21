@@ -139,7 +139,7 @@
             "type": "BOOLEAN",
             "name": "resize_base_image",
             "label": "Resize images",
-            "description": "Generate images that are resized to 512x512 (maintaining aspect ratio), instead of using the resolution of the base image. The CompVis weights work best with this resolution",
+            "description": "Generate images that are resized to 512x512 (maintaining aspect ratio), instead of using the resolution of the base image. The Hugging Face weights work best with this resolution",
             "defaultValue": true,
             "mandatory": true,
             "visibilityCondition": "model.show_advanced"
