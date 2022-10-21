@@ -63,6 +63,9 @@ def shallow_clone(repo, dir_, *, branch, username, password):
     command = (
         "clone",
         "--depth=1",
+        # Don't fetch PyTorch checkpoint files. The files aren't needed
+        # to run the model, and are very large
+        "--config=lfs.fetchexclude=*.ckpt",
         f"--branch={branch}",
         "--",
         repo,

@@ -1,5 +1,7 @@
 import html
 import logging
+import pathlib
+import shutil
 
 import dataiku
 from dataiku.runnables import Runnable
@@ -45,6 +47,9 @@ class DownloadWeights(Runnable):
         """
         file_path = self.weights_folder.get_path()
 
+        logging.info("Clearing weights folder")
+        self.weights_folder.clear()
+
         logging.info("Cloning repo: %s", self.model_repo)
         git.shallow_clone(
             self.model_repo,
@@ -54,7 +59,21 @@ class DownloadWeights(Runnable):
             password=self.hugging_face_access_token,
         )
 
+        self._rm_git_dir(file_path)
+
         result = html.escape(
             f"Successfully downloaded weights from {self.model_repo}"
         )
         return result
+
+    @staticmethod
+    def _rm_git_dir(repo_path):
+        """Delete the .git dir of the given Git repo
+
+        The .git dir is deleted because it doubles the size of the repo
+        due to the large Git LFS files
+        """
+        git_dir = pathlib.Path(repo_path, ".git")
+
+        logging.info("Deleting .git dir: %r", git_dir)
+        shutil.rmtree(git_dir)
