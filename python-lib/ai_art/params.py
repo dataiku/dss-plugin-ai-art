@@ -57,6 +57,15 @@ class _BaseParams(abc.ABC):
     def from_config(
         cls, recipe_config, weights_folder_name, image_folder_name
     ):
+        """Create a params instance from the recipe config
+
+        recipe_config (dict[str, Any]): The recipe config
+        weights_folder_name (str): Name of the input weights_folder
+        image_folder_name (str): Name of the output image_folder
+
+        Subclasses should override this class only if they add
+        additional input/output roles
+        """
         kwargs = cls._init_kwargs_from_config(
             recipe_config, weights_folder_name, image_folder_name
         )
@@ -66,6 +75,11 @@ class _BaseParams(abc.ABC):
     def _init_kwargs_from_config(
         recipe_config, weights_folder_name, image_folder_name
     ):
+        """Create the kwargs used by `from_config` to init the instance
+
+        Subclasses should override this method if they add new
+        parameters. Be sure to call the parent method
+        """
         logging.info("Recipe config: %r", recipe_config)
         logging.info("Weights folder: %r", weights_folder_name)
         logging.info("Image folder: %r", image_folder_name)
@@ -121,6 +135,8 @@ class _BaseParams(abc.ABC):
 
 @dataclasses.dataclass
 class TextToImageParams(_BaseParams):
+    """Params used by the Text-to-Image recipe"""
+
     image_height: int
     image_width: int
 
@@ -144,6 +160,8 @@ class TextToImageParams(_BaseParams):
 
 @dataclasses.dataclass
 class TextGuidedImageToImageParams(_BaseParams):
+    """Params used by the Text-Guided Image-to-Image recipe"""
+
     base_image: PIL.Image.Image
     strength: float
 
@@ -155,6 +173,10 @@ class TextGuidedImageToImageParams(_BaseParams):
         image_folder_name,
         base_image_folder_name,
     ):
+        """
+        base_image_folder_name (str): Name of the input
+            base_image_folder
+        """
         kwargs = cls._init_kwargs_from_config(
             recipe_config,
             weights_folder_name,
