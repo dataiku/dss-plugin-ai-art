@@ -88,10 +88,8 @@ class _BaseParams(abc.ABC):
         weights_folder = dataiku.Folder(weights_folder_name)
         image_folder = dataiku.Folder(image_folder_name)
 
-        # TODO: figure out if there's a better way to store the weights.
-        # The current method only works if the folder is on the local
-        # FS.
-        # https://huggingface.co/docs/diffusers/v0.3.0/en/api/diffusion_pipeline#diffusers.DiffusionPipeline.from_pretrained
+        # This must be a local path because Diffusers requires a
+        # filepath to a directory
         weights_path = weights_folder.get_path()
 
         device = recipe_config["device"]

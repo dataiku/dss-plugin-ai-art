@@ -1,4 +1,3 @@
-// TODO: add installation instructions for git and lfs
 {
     "meta": {
         "label": "Download Stable Diffusion weights",
@@ -15,7 +14,6 @@
             "description": "Folder that the weights will be downloaded to",
             "mandatory": true
         },
-        // TODO: add a disclaimer about the model's license (CreativeML Open RAIL-M)
         {
             "name": "model_repo",
             "label": "Model repo",

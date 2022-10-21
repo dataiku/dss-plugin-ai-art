@@ -162,8 +162,6 @@ class TextToImage(_BaseImageGenerator):
         )
         self._pipe = pipe.to(self._device)
 
-    # TODO: Add all optimizations:
-    #   https://huggingface.co/docs/diffusers/optimization/fp16
     def generate_images(
         self,
         prompt,
