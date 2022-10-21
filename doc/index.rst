@@ -1,8 +1,7 @@
 AI Art
 %%%%%%
 
-.. TODO: add images
-.. TODO: add documentation for the recipes
+.. TODO: add images to the instructions
 
 This plugin allows you to generate images from text using
 `Stable Diffusion <stable-diffusion-wiki_>`_
