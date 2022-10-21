@@ -1,7 +1,5 @@
-# TODO: set the python intepreters correctly
-# TODO: pin versions
-diffusers==0.4.2
-torch>=1.4
-transformers
-ftfy
-Pillow
+diffusers==0.6.0
+torch==1.12.1
+transformers==4.23.1
+ftfy==6.1.1
+Pillow==9.2.0

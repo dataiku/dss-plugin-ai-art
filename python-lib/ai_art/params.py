@@ -7,7 +7,6 @@ from typing import TYPE_CHECKING
 from urllib.parse import urljoin
 
 import dataiku
-import PIL.Image
 import torch
 
 from ai_art.constants import HUGGING_FACE_BASE_URL
@@ -15,6 +14,8 @@ from ai_art.image import open_base_image, resize_image
 
 if TYPE_CHECKING:
     from typing import Optional
+
+    import PIL.Image
 
 
 def resolve_model_repo(config):
