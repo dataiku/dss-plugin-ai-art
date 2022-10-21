@@ -11,6 +11,7 @@ import PIL.Image
 import torch
 
 from ai_art.constants import HUGGING_FACE_BASE_URL
+from ai_art.image import open_base_image, resize_image
 
 if TYPE_CHECKING:
     from typing import Optional
@@ -180,7 +181,12 @@ class TextGuidedImageToImageParams(_BaseParams):
 
         base_image_path = recipe_config["base_image_path"]
         logging.info("Opening base image: %r", base_image_path)
-        base_image = cls._open_base_image(base_image_folder, base_image_path)
+        base_image = open_base_image(base_image_folder, base_image_path)
+
+        # The CompVis models work best with 512x512 images, as described
+        # in this article: https://huggingface.co/blog/stable_diffusion
+        if recipe_config["resize_base_image"]:
+            base_image = resize_image(base_image, min_size=512)
 
         additional_kwargs = {
             "base_image": base_image,
@@ -189,19 +195,3 @@ class TextGuidedImageToImageParams(_BaseParams):
         kwargs.update(additional_kwargs)
 
         return kwargs
-
-    @staticmethod
-    def _open_base_image(folder, image_path):
-        """Open image from a Dataiku folder to use with Stable Diffusion
-
-        Returns a PIL image
-        """
-        with folder.get_download_stream(image_path) as file:
-            image = PIL.Image.open(file)
-
-        # Convert the image to RGB per the Diffusers documentation
-        # https://huggingface.co/docs/diffusers/using-diffusers/img2img
-        if image.mode != "RGB":
-            image = image.convert("RGB")
-
-        return image

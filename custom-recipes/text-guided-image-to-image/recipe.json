@@ -137,6 +137,15 @@
         },
         {
             "type": "BOOLEAN",
+            "name": "resize_base_image",
+            "label": "Resize images",
+            "description": "Generate images that are resized to 512x512 (maintaining aspect ratio), instead of using the resolution of the base image. The CompVis weights work best with this resolution",
+            "defaultValue": true,
+            "mandatory": true,
+            "visibilityCondition": "model.show_advanced"
+        },
+        {
+            "type": "BOOLEAN",
             "name": "enable_attention_slicing",
             "label": "Attention slicing",
             "description": "Generate each image in steps instead of all at once. Reduces VRAM usage, but is slightly slower",

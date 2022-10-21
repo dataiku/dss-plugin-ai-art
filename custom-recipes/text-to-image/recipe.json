@@ -119,7 +119,6 @@
             "label": "Image settings",
             "visibilityCondition": "model.show_advanced"
         },
-        // TODO: document best practices when choosing image size: https://huggingface.co/blog/stable_diffusion
         {
             "type": "INT",
             "name": "image_height",
