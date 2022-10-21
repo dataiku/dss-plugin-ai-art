@@ -42,8 +42,8 @@
             "name": "revision",
             "label": "Model revision",
             "type": "SELECT",
-            "description": "Revision to download. The \"fp16\" revision is recommended if you have less than 10 GB of VRAM",
-            "defaultValue": "main",
+            "description": "Revision to download. The \"main\" revision may give slightly better results, but is slower and requires at least 10 GB of VRAM",
+            "defaultValue": "fp16",
             "mandatory": true,
             "getChoicesFromPython": true,
             "triggerParameters": ["model_repo", "custom_model_repo", "hugging_face_credentials"]

@@ -50,8 +50,8 @@
             "type": "BOOLEAN",
             "name": "use_half_precision",
             "label": "Half precision",
-            "description": "Use half-precision (16-bit) floats. Check this if you're using the 'fp16' revision of the weights",
-            "defaultValue": false,
+            "description": "Use half-precision (16-bit) floats. Uncheck this if you're using the \"main\" revision of the weights",
+            "defaultValue": true,
             "mandatory": true
         },
         {
