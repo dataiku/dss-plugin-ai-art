@@ -53,7 +53,6 @@ class _BaseImageGenerator(abc.ABC):
         If `device_id` is `None`, the device will be auto-detected based
         on whether a CUDA device is availabe
         """
-        # TODO: test this with multiple devices
         if device_id is None:
             # Auto-select the device
             if torch.cuda.is_available():
