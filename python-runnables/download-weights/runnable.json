@@ -38,12 +38,11 @@
             "mandatory": false,
             "visibilityCondition": "model.model_repo == 'CUSTOM'"
         },
-        // TODO: Half precision doesn't work when using the CPU. Update the documentation to tell users to use the "main" revision when using the CPU.
         {
             "name": "revision",
             "label": "Model revision",
             "type": "SELECT",
-            "description": "Revision to download. The \"main\" revision may give slightly better results, but is slower and requires at least 10 GB of VRAM",
+            "description": "Revision to download. The \"main\" revision should be used if you don't have a CUDA-cabable GPU",
             "defaultValue": "fp16",
             "mandatory": true,
             "getChoicesFromPython": true,

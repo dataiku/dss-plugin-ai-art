@@ -32,6 +32,15 @@ class _BaseImageGenerator(abc.ABC):
         """
         self._init_device(device_id)
 
+        if torch_dtype is torch.float16 and self._device.type == "cpu":
+            # Running the pipeline will fail if half precison is enabled
+            # when using the CPU
+            logging.warning(
+                "Half precision isn't supported when running on the CPU. "
+                "Using full precision instead"
+            )
+            torch_dtype = None
+
         logging.info("Loading weights")
         self._init_pipe(weights_path, torch_dtype)
 
