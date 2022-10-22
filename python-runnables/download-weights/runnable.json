@@ -42,7 +42,7 @@
             "name": "revision",
             "label": "Model revision",
             "type": "SELECT",
-            "description": "Revision to download. The \"main\" revision should be used if you don't have a CUDA-cabable GPU",
+            "description": "Revision to download. The \"main\" revision should be used if you don't have a CUDA-capable GPU",
             "defaultValue": "fp16",
             "mandatory": true,
             "getChoicesFromPython": true,
