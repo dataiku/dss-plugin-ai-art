@@ -38,6 +38,7 @@
             "mandatory": false,
             "visibilityCondition": "model.model_repo == 'CUSTOM'"
         },
+        // TODO: Half precision doesn't work when using the CPU. Update the documentation to tell users to use the "main" revision when using the CPU.
         {
             "name": "revision",
             "label": "Model revision",

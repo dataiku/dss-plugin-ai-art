@@ -26,8 +26,9 @@ flake8 .
 > *TODO*: Add tests
 
 ## Known limitations
-The weights folder must be stored on the local filesystem. Remote connections
-such as S3 don't work. This is because the method used to load the weights
+The weights must be stored on the local filesystem. If a remote folder (S3, etc)
+is used, the weights will be downloaded to a temporary directory every time the
+recipe is run. This is because the method used to load the weights
 ([from_pretrained]) and the method used to download the weights (git clone)
 require a local filepath.
 

@@ -3,6 +3,7 @@ from __future__ import annotations
 import abc
 import dataclasses
 import logging
+import pathlib
 from typing import TYPE_CHECKING
 from urllib.parse import urljoin
 
@@ -10,9 +11,11 @@ import dataiku
 import torch
 
 from ai_art.constants import HUGGING_FACE_BASE_URL
+from ai_art.folder import get_file_path_or_temp
 from ai_art.image import open_base_image, resize_image
 
 if TYPE_CHECKING:
+    import tempfile
     from typing import Optional
 
     import PIL.Image
@@ -39,7 +42,9 @@ def resolve_model_repo(config):
 class _BaseParams(abc.ABC):
     """Base params class that defines the shared params"""
 
-    weights_path: str
+    weights_folder: dataiku.Folder
+    weights_path: pathlib.Path
+    temp_weights_dir: Optional[tempfile.TemporaryDirectory]
     image_folder: dataiku.Folder
     prompt: str
     image_count: int
@@ -88,9 +93,7 @@ class _BaseParams(abc.ABC):
         weights_folder = dataiku.Folder(weights_folder_name)
         image_folder = dataiku.Folder(image_folder_name)
 
-        # This must be a local path because Diffusers requires a
-        # filepath to a directory
-        weights_path = weights_folder.get_path()
+        weights_path, temp_weights_dir = get_file_path_or_temp(weights_folder)
 
         device = recipe_config["device"]
         if device == "auto":
@@ -113,7 +116,9 @@ class _BaseParams(abc.ABC):
             random_seed = None
 
         return {
-            "weights_path": weights_path,
+            "weights_folder": weights_folder,
+            "weights_path": pathlib.Path(weights_path),
+            "temp_weights_dir": temp_weights_dir,
             "image_folder": image_folder,
             "prompt": recipe_config["prompt"],
             "image_count": int(recipe_config["image_count"]),

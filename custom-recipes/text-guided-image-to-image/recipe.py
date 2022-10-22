@@ -6,6 +6,7 @@ from dataiku.customrecipe import (
     get_recipe_config,
 )
 
+from ai_art.folder import download_folder
 from ai_art.generate_image import TextGuidedImageToImage
 from ai_art.params import TextGuidedImageToImageParams
 from ai_art.save import save_images
@@ -22,6 +23,16 @@ params = TextGuidedImageToImageParams.from_config(
 )
 logging.info("Generated params: %r", params)
 
+# Download the weights folder to a local temp dir so that the pipeline
+# can access them.
+# This is only needed if the managed folder is remote, since local
+# folders can be accessed directly
+if params.temp_weights_dir is not None:
+    logging.info(
+        "Downloading weights to local folder: %r", params.weights_path
+    )
+    download_folder(params.weights_folder, params.weights_path)
+
 generator = TextGuidedImageToImage(
     params.weights_path,
     device_id=params.device_id,
@@ -30,7 +41,7 @@ generator = TextGuidedImageToImage(
 )
 
 if params.clear_folder:
-    logging.info("Clearing image folder")
+    logging.info("Clearing image folder: %r", params.image_folder.name)
     params.image_folder.clear()
 
 images = generator.generate_images(
@@ -46,3 +57,6 @@ images = generator.generate_images(
 )
 
 save_images(images, params.image_folder, params.filename_prefix)
+
+if params.temp_weights_dir is not None:
+    params.temp_weights_dir.cleanup()

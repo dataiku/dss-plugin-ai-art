@@ -1,12 +1,12 @@
 import html
 import logging
-import pathlib
 import shutil
 
 import dataiku
 from dataiku.runnables import Runnable
 
 from ai_art import git
+from ai_art.folder import get_file_path_or_temp, upload_folder
 from ai_art.params import resolve_model_repo
 
 
@@ -45,12 +45,13 @@ class DownloadWeights(Runnable):
         The progress_callback is a function expecting 1 value: current
         progress
         """
-        file_path = self.weights_folder.get_path()
+        file_path, temp_dir = get_file_path_or_temp(self.weights_folder)
+        logging.info("Repo will be cloned to: %r", file_path)
 
-        logging.info("Clearing weights folder")
+        logging.info("Clearing weights folder: %r", self.weights_folder.name)
         self.weights_folder.clear()
 
-        logging.info("Cloning repo: %s", self.model_repo)
+        logging.info("Cloning repo: %r", self.model_repo)
         git.shallow_clone(
             self.model_repo,
             file_path,
@@ -60,6 +61,17 @@ class DownloadWeights(Runnable):
         )
 
         self._rm_git_dir(file_path)
+
+        # Upload the weights from the temp dir to the remote folder.
+        # This is only needed if the managed folder is remote, since
+        # local folders can be directly cloned to
+        if temp_dir is not None:
+            logging.info(
+                "Uploading repo to weights folder: %r",
+                self.weights_folder.name,
+            )
+            upload_folder(file_path, self.weights_folder)
+            temp_dir.cleanup()
 
         result = html.escape(
             f"Successfully downloaded weights from {self.model_repo}"
@@ -73,7 +85,7 @@ class DownloadWeights(Runnable):
         The .git dir is deleted because it doubles the size of the repo
         due to the large Git LFS files
         """
-        git_dir = pathlib.Path(repo_path, ".git")
+        git_dir = repo_path / ".git"
 
         logging.info("Deleting .git dir: %r", git_dir)
         shutil.rmtree(git_dir)

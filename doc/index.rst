@@ -78,9 +78,10 @@ weights from Hugging Face using the provided macro.
     the *Download Stable Diffusion weights* macro.
 
     .. warning::
-       The weights folder must be stored on the local filesystem. Folders stored
-       on remote connections (Amazon S3, Google Cloud Storage, etc) aren't
-       supported.
+       Using a folder that's stored on the local filesystem is recommended. If
+       the folder is stored on a remote connection (Amazon S3, Google Cloud
+       Storage, etc), the weights will be downloaded to a temporary directory
+       every time the recipe is run.
 
 How to use
 ==========
