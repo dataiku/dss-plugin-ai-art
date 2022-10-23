@@ -14,13 +14,19 @@ class _Dimension(enum.IntEnum):
 def open_base_image(folder, image_path):
     """Open image from a Dataiku folder to use with Stable Diffusion
 
-    Returns a PIL image
+    :param folder: Folder that contains the image
+    :type folder: dataiku.Folder
+    :param image_path: Filepath of the image within `folder`
+    :type image_path: str
+
+    :return: Image that was opened
+    :rtype: PIL.Image.Image
     """
     with folder.get_download_stream(image_path) as file:
         image = Image.open(file)
 
     # Convert the image to RGB per the Diffusers documentation
-    # https://huggingface.co/docs/diffusers/using-diffusers/img2img
+    # https://huggingface.co/docs/diffusers/v0.6.0/using-diffusers/img2img
     if image.mode != "RGB":
         image = image.convert("RGB")
 
@@ -30,13 +36,16 @@ def open_base_image(folder, image_path):
 def resize_image(image, min_size):
     """Resize the image so that the shorter dimension equals `min_size`
 
-    image (Image.Image): The image to resize
-    min_size (int): The size that you want the shorter dimension of the
+    :param image: Image to resize
+    :type image: PIL.Image.Image
+    :param min_size: The size that you want the shorter dimension of the
         image to be resized to
+    :type min_size: int
 
     The aspect ratio of the image is maintained
 
-    Returns a PIL image
+    :return: Resized image
+    :rtype: PIL.Image.Image
     """
     # `base_dimension` is the shorter dimension that will be resized to
     # `min_size`

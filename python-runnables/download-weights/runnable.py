@@ -82,8 +82,13 @@ class DownloadWeights(Runnable):
     def _rm_git_dir(repo_path):
         """Delete the .git dir of the given Git repo
 
+        :param repo_path: Path to the Git repo
+        :type repo_path: os.PathLike
+
         The .git dir is deleted because it doubles the size of the repo
         due to the large Git LFS files
+
+        :return: None
         """
         git_dir = repo_path / ".git"
 

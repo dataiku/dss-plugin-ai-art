@@ -1,22 +1,18 @@
-from __future__ import annotations
-
 import logging
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from typing import Iterable
-
-    import dataiku
-    from PIL.Image import Image
 
 
-def save_images(
-    images: Iterable[Image], folder: dataiku.Folder, filename_prefix: str
-) -> None:
+def save_images(images, folder, filename_prefix):
     """Save images to a folder
 
-    The images are named sequentially based on `filename_prefix`,
-    e.g. 'prefix1.png', 'prefix2.png'
+    :param images: Images that will be saved
+    :type images: Iterable[PIL.Image.Image]
+    :param folder: Folder that the images will be saved to
+    :type folder: dataiku.Folder
+    :param filename_prefix: Images are named sequentially based on this,
+        e.g. 'prefix1.png', 'prefix2.png'
+    :type filename_prefix: str
+
+    :return: None
     """
     for i, image in enumerate(images):
         filename = f"{filename_prefix}{i+1}.png"

@@ -22,13 +22,18 @@ Source: https://stackoverflow.com/a/43022442
 def _run_git_with_auth(command, username, password, **kwargs):
     """Run the given Git command with authentication
 
-    command (iterable of str): Partial command to run,
-        e.g. `["clone", "https://REPO"]`
-    username (str): Username to authenticate with the HTTP Git server
-    password (str): Password to authenticate with the HTTP Git server
-    kwargs: Extra kwargs to pass to `subprocess.run()`
+    :param command: Partial command to run, e.g.
+        `["clone", "https://REPO"]`
+    :type command: Iterable[str]
+    :param username: Username to authenticate with the HTTP Git server
+    :type username: str
+    :param password: Password to authenticate with the HTTP Git server
+    :type password: str
+    :param kwargs: Extra kwargs to pass to `subprocess.run()`
+    :type kwargs: Any
 
-    Returns the output of `subprocess.run()`
+    :return: Output of `subprocess.run()`
+    :rtype: subprocess.CompletedProcess
     """
     if "env" in kwargs:
         # Add the auth env-vars to the user-provided env dict
@@ -54,11 +59,18 @@ def _run_git_with_auth(command, username, password, **kwargs):
 def shallow_clone(repo, dir_, *, branch, username, password):
     """Perform a shallow clone of a password-protected HTTP Git repo
 
-    repo (str): Git repo to clone
-    dir_ (str or path-like): Path that the repo will be cloned to
-    branch (str): Branch that will be fetched
-    username (str): Username used to log into the remote repo
-    password (str): Password used to log into the remote repo
+    :param repo: Git repo to clone
+    :type repo: str
+    :param dir_: Path that the repo will be cloned to
+    :type dir_: str | os.PathLike
+    :param branch: Branch that will be fetched
+    :type branch: str
+    :param username: Username used to log into the remote repo
+    :type username: str
+    :param password: Password used to log into the remote repo
+    :type password: str
+
+    :return: None
     """
     command = (
         "clone",
@@ -99,8 +111,11 @@ Result:
 def _parse_branch_from_line(line):
     """Parse the branch name from a line from `git ls-remote`
 
-    Returns the branch name.
-    If no branch name is found, logs a warning and returns `None`.
+    :param line: Output line from `git ls-remote`
+    :type line: str
+
+    :return: Branch name, or `None` if no branch name is found
+    :rtype: str | None
     """
     result = _PARSE_BRANCH_REGEX.search(line)
     if result:
@@ -113,11 +128,15 @@ def _parse_branch_from_line(line):
 def get_branches(repo, *, username, password):
     """Get the branches of a password-protected remote repo
 
-    repo (str): Git repo to clone
-    username (str): Username used to log into the remote repo
-    password (str): Password used to log into the remote repo
+    :param repo: Git repo to clone
+    :type repo: str
+    :param username: Username used to log into the remote repo
+    :type username: str
+    :param password: Password used to log into the remote repo
+    :type password: str
 
-    Returns a generator of branches (str)
+    :return: Generator of branches
+    :rtype: Generator[str, None, None]
     """
     # Ideally there would be a "--" arg before `repo` so that it doesn't
     # break if `repo` starts with a dash, but the version of Git that
@@ -146,7 +165,9 @@ def get_branches(repo, *, username, password):
 def check_lfs():
     """Assert that LFS is installed
 
-    Raises `RuntimeError` if it's not installed
+    :raises RuntimeError: LFS isn't installed
+
+    :return: None
     """
     command = ("git", "config", "--get-regexp", r"^filter\.lfs\.")
     logging.info("Running command: %s", command)

@@ -24,9 +24,14 @@ if TYPE_CHECKING:
 def resolve_model_repo(config):
     """Resolve the model_repo param to an absolute URL
 
-    config (mapping): Config params of the recipe
+    :param config: Recipe config
+    :type config: Mapping[str, Any]
 
-    Returns the URL of the model repo
+    :raises ValueError: `model_repo` is set to "CUSTOM", but
+        `custom_model_repo` isn't defined
+
+    :return: URL of the model repo
+    :rtype: str
     """
     model_repo_path = config["model_repo"]
     if model_repo_path == "CUSTOM":
@@ -65,12 +70,18 @@ class _BaseParams(abc.ABC):
     ):
         """Create a params instance from the recipe config
 
-        recipe_config (dict[str, Any]): The recipe config
-        weights_folder_name (str): Name of the input weights_folder
-        image_folder_name (str): Name of the output image_folder
+        :param recipe_config: Recipe config
+        :type recipe_config: Mapping[str, Any]
+        :param weights_folder_name: Name of the input weights_folder
+        :type weights_folder_name: str
+        :param image_folder_name: Name of the output image_folder
+        :type image_folder_name: str
 
         Subclasses should override this class only if they add
         additional input/output roles
+
+        :return: Created params instance
+        :rtype: Self
         """
         kwargs = cls._init_kwargs_from_config(
             recipe_config, weights_folder_name, image_folder_name
@@ -83,8 +94,18 @@ class _BaseParams(abc.ABC):
     ):
         """Create the kwargs used by `from_config` to init the instance
 
+        :param recipe_config: Recipe config
+        :type recipe_config: Mapping[str, Any]
+        :param weights_folder_name: Name of the input weights_folder
+        :type weights_folder_name: str
+        :param image_folder_name: Name of the output image_folder
+        :type image_folder_name: str
+
         Subclasses should override this method if they add new
         parameters. Be sure to call the parent method
+
+        :return: kwargs that will be passed to `__init__()`
+        :rtype: dict[str, Any]
         """
         logging.info("Recipe config: %r", recipe_config)
         logging.info("Weights folder: %r", weights_folder_name)
@@ -178,8 +199,9 @@ class TextGuidedImageToImageParams(_BaseParams):
         base_image_folder_name,
     ):
         """
-        base_image_folder_name (str): Name of the input
+        :param base_image_folder_name: Name of the input
             base_image_folder
+        :type base_image_folder_name: str
         """
         kwargs = cls._init_kwargs_from_config(
             recipe_config,

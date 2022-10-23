@@ -20,15 +20,21 @@ class _BaseImageGenerator(abc.ABC):
         enable_attention_slicing=False,
     ):
         """
-        weights_path (str or path-like): Path to a local folder that
-            contains the Stable Diffusion weights
-        device_id (str): PyTorch device id, e.g "cuda:0". If `None`,
+        :param weights_path: Path to a local folder that contains the
+            Stable Diffusion weights
+        :type weights_path: str | os.PathLike
+        :param device_id: PyTorch device id, e.g "cuda:0". If `None`,
             the default CUDA device will be used if available; otherwise
-                the CPU will be used
-        torch_dtype (torch.dtype | None): Override the default
-            `torch.dtype` and load the model under this dtype
-        enable_attention_slicing (bool): Enable sliced attention
+            the CPU will be used
+        :type device_id: str | None
+        :param torch_dtype: Override the default `torch.dtype` and load
+            the model under this dtype
+        :type torch_dtype: torch.dtype | None
+        :param enable_attention_slicing: Enable sliced attention
             computation when generating the images
+        :type enable_attention_slicing: bool
+
+        :return: None
         """
         self._init_device(device_id)
 
@@ -50,8 +56,12 @@ class _BaseImageGenerator(abc.ABC):
     def _init_device(self, device_id):
         """Load the PyTorch device
 
-        If `device_id` is `None`, the device will be auto-detected based
-        on whether a CUDA device is availabe
+        :param device_id: PyTorch device id, e.g "cuda:0". If `None`,
+            the default CUDA device will be used if available; otherwise
+            the CPU will be used
+        :type device_id: str | None
+
+        :return: None
         """
         if device_id is None:
             # Auto-select the device
@@ -71,6 +81,15 @@ class _BaseImageGenerator(abc.ABC):
         """Load the pipeline from the pretrained weights
 
         The pipeline must be assigned to the `_pipe` attribute
+
+        :param weights_path: Path to a local folder that contains the
+            Stable Diffusion weights
+        :type weights_path: str | os.PathLike
+        :param torch_dtype: Override the default `torch.dtype` and load
+            the model under this dtype
+        :type torch_dtype: torch.dtype | None
+
+        :return: None
         """
         ...
 
@@ -94,9 +113,14 @@ class _BaseImageGenerator(abc.ABC):
     def _generate_image_batch(self, use_autocast, **kwargs):
         """Generate a single batch of images
 
-        All kwargs are passed to `_pipe()`
+        :param use_autocast: Use `torch.autocast` when possible. Only
+            available for CUDA devices
+        :type use_autocast: bool
+        :param kwargs: kwargs to pass to `_pipe()`
+        :type kwargs: Any
 
-        Returns a list of images that were generated
+        :return: List of images that were generated
+        :rtype: list[PIL.Image.Image]
         """
         if use_autocast:
             with torch.autocast(self._device.type):
@@ -111,9 +135,22 @@ class _BaseImageGenerator(abc.ABC):
     ):
         """Generic base method that is called by `generate_images()`
 
-        All kwargs are passed to `_pipe()`
+        :param image_count: Number of images to generate
+        :type image_count: int
+        :param batch_size: Number of images to generate at once, or
+            `None` to generate all images at once
+        :type batch_size: int | None
+        :param use_autocast: Use `torch.autocast` when possible. Only
+            available for CUDA devices
+        :type use_autocast: bool
+        :param random_seed: Random seed that's used to generate the
+            images
+        :type random_seed: int | None
+        :param kwargs: kwargs to pass to `_pipe()`
+        :type kwargs: Any
 
-        Yields a generator of images that were generated
+        :return: Generator of images that were generated
+        :rtype: Generator[PIL.Image.Image, None, None]
         """
         image_processed_count = 0
         if batch_size:
@@ -185,26 +222,36 @@ class TextToImage(_BaseImageGenerator):
     ):
         """Generate images based on the text prompt
 
-        prompt (str): Text description that will be used to generate the
-            images
-        image_count (int): Number of images to generate
-        batch_size (int | None): Number of images to generate at once,
-            or `None` to generate all images at once
-        use_autocast (bool): Use `torch.autocast` when possible. Only
-            available for CUDA devices
-        random_seed (int | None): Random seed that's used to generate
+        :param prompt: Text description that will be used to generate
             the images
-        height (int): Height (in pixels) of the images. Must be
-            a multiple of 64
-        width (int): Width (in pixels) of the images. Must be a multiple
-            of 64
-        num_inference_steps (int): Number of denoising steps
-        guidance_scale (float): Guidance scale
+        :type prompt: str
+        :param image_count: Number of images to generate
+        :type image_count: int
+        :param batch_size: Number of images to generate at once, or
+            `None` to generate all images at once
+        :type batch_size: int | None
+        :param use_autocast: Use `torch.autocast` when possible. Only
+            available for CUDA devices
+        :type use_autocast: bool
+        :param random_seed: Random seed that's used to generate the
+            images
+        :type random_seed: int | None
+        :param height: Height (in pixels) of the images. Must be a
+            multiple of 64
+        :type height: int
+        :param width: Width (in pixels) of the images. Must be a
+            multiple of 64
+        :type width: int
+        :param num_inference_steps: Number of denoising steps
+        :type num_inference_steps: int
+        :param guidance_scale: Guidance scale
+        :type guidance_scale: float
 
         The height and width must be a multiple of 64 due to this issue:
             https://github.com/CompVis/stable-diffusion/issues/60
 
-        Yields a generator of images that were generated
+        :return: Generator of images that were generated
+        :rtype: Generator[PIL.Image.Image, None, None]
         """
         yield from self._generate_image_batches(
             prompt=prompt,
@@ -243,22 +290,32 @@ class TextGuidedImageToImage(_BaseImageGenerator):
     ):
         """Generate images based on the init image, guided by the prompt
 
-        prompt (str): Text description that will be used to generate the
-            images
-        init_image (PIL.Image.Image): Base image that the output images
-            will be based on
-        image_count (int): Number of images to generate
-        batch_size (int | None): Number of images to generate at once,
-            or `None` to generate all images at once
-        use_autocast (bool): Use `torch.autocast` when possible. Only
-            available for CUDA devices
-        random_seed (int | None): Random seed that's used to generate
+        :param prompt: Text description that will be used to generate
             the images
-        strength (float): Indicates how much to transform `init_image`
-        num_inference_steps (int): Number of denoising steps
-        guidance_scale (float): Guidance scale
+        :type prompt: str
+        :param init_image: Base image that the output images will be
+            based on
+        :type init_image: PIL.Image.Image
+        :param image_count: Number of images to generate
+        :type image_count: int
+        :param batch_size: Number of images to generate at once, or
+            `None` to generate all images at once
+        :type batch_size: int | None
+        :param use_autocast: Use `torch.autocast` when possible. Only
+            available for CUDA devices
+        :type use_autocast: bool
+        :param random_seed: Random seed that's used to generate the
+            images
+        :type random_seed: int | None
+        :param strength: Indicates how much to transform `init_image`
+        :type strength: float
+        :param num_inference_steps: Number of denoising steps
+        :type num_inference_steps: int
+        :param guidance_scale: Guidance scale
+        :type guidance_scale: float
 
-        Yields a generator of images that were generated
+        :return: Generator of images that were generated
+        :rtype: Generator[PIL.Image.Image, None, None]
         """
         yield from self._generate_image_batches(
             prompt=prompt,
