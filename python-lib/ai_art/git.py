@@ -119,7 +119,10 @@ def get_branches(repo, *, username, password):
 
     Returns a generator of branches (str)
     """
-    command = ("ls-remote", "--heads", "--", repo)
+    # Ideally there would be a "--" arg before `repo` so that it doesn't
+    # break if `repo` starts with a dash, but the version of Git that
+    # RHEL 7 uses (1.8.3.1) is too old to support this syntax
+    command = ("ls-remote", "--heads", repo)
 
     # Force the locale so the output doesn't change
     env = os.environ.copy()
