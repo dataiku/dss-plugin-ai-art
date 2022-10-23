@@ -27,9 +27,15 @@ flake8 .
 
 ## Known limitations
 The weights must be stored on the local filesystem. If a remote folder (S3, etc)
-is used, the weights will be downloaded to a temporary directory every time the
-recipe is run. This is because the method used to load the weights
-([from_pretrained]) and the method used to download the weights (git clone)
-require a local filepath.
+is used, or if the recipe uses containerized execution, the weights will be
+downloaded to a temporary directory every time the recipe is run. This is
+because the method used to load the weights ([from_pretrained]) and the method
+used to download the weights (git clone) require a local filepath.
+
+> *TODO*: The macro for downloading weights is currently broken when using UIF
+  with a local folder because it doesn't have write access to the local folder.
+  This could potentially be fixed by downloading the weights to a local
+  directory first like when using remote folders. Unsure if there's a better
+  way.
 
 [from_pretrained]: https://huggingface.co/docs/diffusers/v0.6.0/en/api/diffusion_pipeline#diffusers.DiffusionPipeline.from_pretrained
