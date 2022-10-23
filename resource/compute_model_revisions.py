@@ -6,6 +6,17 @@ from ai_art.params import resolve_model_repo
 
 
 def _get_branches_from_remote(config):
+    """List available branches from a remote Git repo
+
+    :param config: Macro config
+    :type config: Mapping[str, Any]
+
+    :raises KeyError: The Hugging Face credentials aren't set in the
+        config
+
+    :return: Branches from the Git repo
+    :rtype: Generator[str, None, None]
+    """
     model_repo = resolve_model_repo(config)
     credentials = config["hugging_face_credentials"]
     hugging_face_username = credentials["username"]
@@ -16,24 +27,26 @@ def _get_branches_from_remote(config):
         username=hugging_face_username,
         password=hugging_face_access_token,
     )
-    # Exhaust the generator so that any errors are caught by the
-    # try-block
-    return tuple(branches)
+    return branches
 
 
 def _sort_branches(branches):
     """Sort the given branches and remove duplicates
 
+    :param branches: Branches to sort
+    :type branches: Iterable[str]
+
     Branches in DEFAULT_REVISIONS are listed first so that the user is
     more likely to pick them
 
-    Returns a list of sorted branches
+    :return: Sorted branches
+    :rtype: list[str]
     """
     unsorted_branches = set(branches)
     preferred_branches = []
 
     for branch in DEFAULT_REVISIONS:
-        if branch in branches:
+        if branch in unsorted_branches:
             preferred_branches.append(branch)
             unsorted_branches.remove(branch)
 
@@ -49,7 +62,8 @@ def do(payload, config, plugin_config, inputs):
     revisions that are intended to be used
     """
     try:
-        branches = _get_branches_from_remote(config)
+        # Convert the generator to a tuple so that any errors are caught
+        branches = tuple(_get_branches_from_remote(config))
     except Exception:
         logging.exception(
             "Unable to get Git revisions dynamically. "
