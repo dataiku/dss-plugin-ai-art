@@ -7,7 +7,6 @@ import pathlib
 from typing import TYPE_CHECKING
 from urllib.parse import urljoin
 
-import dataiku
 import torch
 
 from ai_art.constants import HUGGING_FACE_BASE_URL
@@ -18,6 +17,7 @@ if TYPE_CHECKING:
     import tempfile
     from typing import Optional
 
+    import dataiku
     import PIL.Image
 
 
@@ -65,17 +65,15 @@ class _BaseParams(abc.ABC):
     guidance_scale: float
 
     @classmethod
-    def from_config(
-        cls, recipe_config, weights_folder_name, image_folder_name
-    ):
+    def from_config(cls, recipe_config, weights_folder, image_folder):
         """Create a params instance from the recipe config
 
         :param recipe_config: Recipe config
         :type recipe_config: Mapping[str, Any]
-        :param weights_folder_name: Name of the input weights_folder
-        :type weights_folder_name: str
-        :param image_folder_name: Name of the output image_folder
-        :type image_folder_name: str
+        :param weights_folder: Input weights_folder
+        :type weights_folder: dataiku.Folder
+        :param image_folder: Output image_folder
+        :type image_folder: dataiku.Folder
 
         Subclasses should override this class only if they add
         additional input/output roles
@@ -84,22 +82,20 @@ class _BaseParams(abc.ABC):
         :rtype: Self
         """
         kwargs = cls._init_kwargs_from_config(
-            recipe_config, weights_folder_name, image_folder_name
+            recipe_config, weights_folder, image_folder
         )
         return cls(**kwargs)
 
     @staticmethod
-    def _init_kwargs_from_config(
-        recipe_config, weights_folder_name, image_folder_name
-    ):
+    def _init_kwargs_from_config(recipe_config, weights_folder, image_folder):
         """Create the kwargs used by `from_config` to init the instance
 
         :param recipe_config: Recipe config
         :type recipe_config: Mapping[str, Any]
-        :param weights_folder_name: Name of the input weights_folder
-        :type weights_folder_name: str
-        :param image_folder_name: Name of the output image_folder
-        :type image_folder_name: str
+        :param weights_folder: Input weights_folder
+        :type weights_folder: dataiku.Folder
+        :param image_folder: Output image_folder
+        :type image_folder: dataiku.Folder
 
         Subclasses should override this method if they add new
         parameters. Be sure to call the parent method
@@ -108,11 +104,8 @@ class _BaseParams(abc.ABC):
         :rtype: dict[str, Any]
         """
         logging.info("Recipe config: %r", recipe_config)
-        logging.info("Weights folder: %r", weights_folder_name)
-        logging.info("Image folder: %r", image_folder_name)
-
-        weights_folder = dataiku.Folder(weights_folder_name)
-        image_folder = dataiku.Folder(image_folder_name)
+        logging.info("Weights folder: %r", weights_folder.name)
+        logging.info("Image folder: %r", image_folder.name)
 
         weights_path, temp_weights_dir = get_file_path_or_temp(weights_folder)
 
@@ -167,11 +160,11 @@ class TextToImageParams(_BaseParams):
 
     @classmethod
     def _init_kwargs_from_config(
-        cls, recipe_config, weights_folder_name, image_folder_name
+        cls, recipe_config, weights_folder, image_folder
     ):
         # Get the shared kwargs from the parent class
         kwargs = super()._init_kwargs_from_config(
-            recipe_config, weights_folder_name, image_folder_name
+            recipe_config, weights_folder, image_folder
         )
 
         additional_kwargs = {
@@ -194,20 +187,19 @@ class TextGuidedImageToImageParams(_BaseParams):
     def from_config(
         cls,
         recipe_config,
-        weights_folder_name,
-        image_folder_name,
-        base_image_folder_name,
+        weights_folder,
+        image_folder,
+        base_image_folder,
     ):
         """
-        :param base_image_folder_name: Name of the input
-            base_image_folder
-        :type base_image_folder_name: str
+        :param base_image_folder: Input base_image_folder
+        :type base_image_folder: dataiku.Folder
         """
         kwargs = cls._init_kwargs_from_config(
             recipe_config,
-            weights_folder_name,
-            image_folder_name,
-            base_image_folder_name,
+            weights_folder,
+            image_folder,
+            base_image_folder,
         )
         return cls(**kwargs)
 
@@ -215,17 +207,16 @@ class TextGuidedImageToImageParams(_BaseParams):
     def _init_kwargs_from_config(
         cls,
         recipe_config,
-        weights_folder_name,
-        image_folder_name,
-        base_image_folder_name,
+        weights_folder,
+        image_folder,
+        base_image_folder,
     ):
         # Get the shared kwargs from the parent class
         kwargs = super()._init_kwargs_from_config(
-            recipe_config, weights_folder_name, image_folder_name
+            recipe_config, weights_folder, image_folder
         )
 
-        logging.info("Base image folder: %r", base_image_folder_name)
-        base_image_folder = dataiku.Folder(base_image_folder_name)
+        logging.info("Base image folder: %r", base_image_folder.name)
 
         base_image_path = recipe_config["base_image_path"]
         logging.info("Opening base image: %r", base_image_path)

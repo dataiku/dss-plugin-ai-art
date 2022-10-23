@@ -1,5 +1,6 @@
 import logging
 
+import dataiku
 from dataiku.customrecipe import (
     get_input_names_for_role,
     get_output_names_for_role,
@@ -13,9 +14,12 @@ from ai_art.save import save_images
 
 weights_folder_name = get_input_names_for_role("weights_folder")[0]
 image_folder_name = get_output_names_for_role("image_folder")[0]
+weights_folder = dataiku.Folder(weights_folder_name)
+image_folder = dataiku.Folder(image_folder_name)
 recipe_config = get_recipe_config()
+
 params = TextToImageParams.from_config(
-    recipe_config, weights_folder_name, image_folder_name
+    recipe_config, weights_folder, image_folder
 )
 logging.info("Generated params: %r", params)
 
