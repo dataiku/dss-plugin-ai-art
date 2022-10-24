@@ -1,8 +1,6 @@
 AI Art
 %%%%%%
 
-.. TODO: add images to the instructions
-
 This plugin allows you to generate images from text using
 `Stable Diffusion <stable-diffusion-wiki_>`_
 
@@ -84,6 +82,9 @@ weights from Hugging Face using the provided macro.
        Storage, etc), the weights will be downloaded to a temporary directory
        every time the recipe is run.
 
+    .. image:: /_static/instructions-macro-1.png
+       :alt: Screenshot showing where to access the macro in the Flow
+
 How to use
 ==========
 AI Art contains two methods for generating images: Text-to-Image Generation, and
@@ -96,6 +97,9 @@ Text-to-Image Generation is used to generate images from a text prompt.
 .. image:: /_static/text-to-image.png
    :alt: Diagram showing how Text-to-Image Generation works
 
+.. image:: /_static/instructions-text-to-image-1.png
+   :alt: Screenshot showing what the Flow looks like when using the recipe
+
 #.  Create a *Text-to-Image Generation* recipe with your weights folder as the
     input.
 
@@ -104,6 +108,9 @@ Text-to-Image Generation is used to generate images from a text prompt.
 #.  If you're using the *fp16* revision of the weights, be sure to check the
     *Half precision* field.
 
+.. image:: /_static/instructions-text-to-image-2.png
+   :alt: Screenshot of the recipe settings
+
 Text-Guided Image-to-Image Generation
 -------------------------------------
 Text-Guided Image-to-Image Generation is used to modify an existing reference
@@ -111,6 +118,9 @@ image based on a text prompt.
 
 .. image:: /_static/text-guided-image-to-image.png
    :alt: Diagram showing how Text-Guided Image-to-Image Generation works
+
+.. image:: /_static/instructions-text-guided-image-to-image-1.png
+   :alt: Screenshot showing what the Flow looks like when using the recipe
 
 #.  Obtain a reference image that you want to use as a base, and upload it to a
     managed folder.
@@ -125,6 +135,8 @@ image based on a text prompt.
 #.  If you're using the *fp16* revision of the weights, be sure to check the
     *Half precision* field.
 
+.. image:: /_static/instructions-text-guided-image-to-image-2.png
+   :alt: Screenshot of the recipe settings
 
 .. _hugging-face-sign-up: https://huggingface.co/join
 .. _hugging-face-token-settings: https://huggingface.co/settings/tokens
