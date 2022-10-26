@@ -4,7 +4,8 @@
         "description": "Download Stable Diffusion weights from Hugging Face to a managed folder",
         "icon": "icon-download"
     },
-    "impersonate": true,
+    // The macro needs direct access to the weights_folder to run `git clone`
+    "impersonate": false,
     "paramsPythonSetup": "compute_model_revisions.py",
     "params": [
         {
