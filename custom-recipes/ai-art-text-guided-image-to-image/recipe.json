@@ -47,11 +47,13 @@
             "mandatory": true
         },
         {
-            "type": "STRING",
+            "type": "SELECT",
             "name": "base_image_path",
             "label": "Base image",
-            "description": "Filepath of the base image within the base image folder, e.g. 'image.png'",
-            "mandatory": true
+            "description": "Image that the generated images will be based on",
+            "mandatory": true,
+            "getChoicesFromPython": true,
+            "disableAutoReload": true
         },
         {
             "type": "INT",
