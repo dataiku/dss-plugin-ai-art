@@ -37,7 +37,7 @@
             "acceptsManagedFolder": true
         }
     ],
-    "paramsPythonSetup": "compute_available_devices.py",
+    "paramsPythonSetup": "compute_recipe_params.py",
     "params": [
         {
             "type": "TEXTAREA",
