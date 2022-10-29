@@ -9,7 +9,7 @@ AI Art is a plugin for DSS that allows you to generate images from text prompts.
 For usage instructions, see *INSERT LINK HERE*.
 
 > *TODO*: Add link to the plugin documentation. For now, see the Sphinx
-  documentation in [doc](doc). Build it by running `make html`
+  documentation in [doc](doc/index.rst).
 
 ## Testing and linting
 Install the development dependencies:
