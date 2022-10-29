@@ -11,13 +11,15 @@ class _Dimension(enum.IntEnum):
     HEIGHT = 1
 
 
-def open_base_image(folder, image_path):
+def open_base_image(folder, image_path, resize):
     """Open image from a Dataiku folder to use with Stable Diffusion
 
     :param folder: Folder that contains the image
     :type folder: dataiku.Folder
     :param image_path: Filepath of the image within `folder`
     :type image_path: str
+    :param resize: Whether or not to resize the image
+    :type resize: bool
 
     :return: Image that was opened
     :rtype: PIL.Image.Image
@@ -30,10 +32,13 @@ def open_base_image(folder, image_path):
     if image.mode != "RGB":
         image = image.convert("RGB")
 
+    if resize:
+        image = _resize_image(image, min_size=512)
+
     return image
 
 
-def resize_image(image, min_size):
+def _resize_image(image, min_size):
     """Resize the image so that the shorter dimension equals `min_size`
 
     :param image: Image to resize

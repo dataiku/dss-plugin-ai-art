@@ -9,7 +9,7 @@ from dataiku.customrecipe import (
 
 from ai_art.folder import download_folder
 from ai_art.generate_image import TextToImage
-from ai_art.params import TextToImageParams
+from ai_art.params import get_text_to_image_config
 from ai_art.save import save_images
 
 weights_folder_name = get_input_names_for_role("weights_folder")[0]
@@ -18,9 +18,7 @@ weights_folder = dataiku.Folder(weights_folder_name)
 image_folder = dataiku.Folder(image_folder_name)
 recipe_config = get_recipe_config()
 
-params = TextToImageParams.from_config(
-    recipe_config, weights_folder, image_folder
-)
+params = get_text_to_image_config(recipe_config, weights_folder, image_folder)
 logging.info("Generated params: %r", params)
 
 # Download the weights folder to a local temp dir so that the pipeline

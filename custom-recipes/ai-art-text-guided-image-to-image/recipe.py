@@ -9,7 +9,7 @@ from dataiku.customrecipe import (
 
 from ai_art.folder import download_folder
 from ai_art.generate_image import TextGuidedImageToImage
-from ai_art.params import TextGuidedImageToImageParams
+from ai_art.params import get_text_guided_image_to_image_config
 from ai_art.save import save_images
 
 weights_folder_name = get_input_names_for_role("weights_folder")[0]
@@ -20,7 +20,7 @@ base_image_folder = dataiku.Folder(base_image_folder_name)
 image_folder = dataiku.Folder(image_folder_name)
 recipe_config = get_recipe_config()
 
-params = TextGuidedImageToImageParams.from_config(
+params = get_text_guided_image_to_image_config(
     recipe_config,
     weights_folder,
     image_folder,

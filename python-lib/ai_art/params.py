@@ -1,24 +1,12 @@
-from __future__ import annotations
-
-import abc
-import dataclasses
 import logging
-import pathlib
-from typing import TYPE_CHECKING
 from urllib.parse import urljoin
 
 import torch
 
+from dku_config import DkuConfig
 from ai_art.constants import HUGGING_FACE_BASE_URL
 from ai_art.folder import get_file_path_or_temp
-from ai_art.image import open_base_image, resize_image
-
-if TYPE_CHECKING:
-    import tempfile
-    from typing import Optional
-
-    import dataiku
-    import PIL.Image
+from ai_art.image import open_base_image
 
 
 def resolve_model_repo(config):
@@ -43,195 +31,323 @@ def resolve_model_repo(config):
     return model_repo
 
 
-@dataclasses.dataclass
-class _BaseParams(abc.ABC):
-    """Base params class that defines the shared params"""
+def _cast_device_id(device_id):
+    """Cast the `device_id` param to `None` if it's set to "auto"
 
-    weights_folder: dataiku.Folder
-    weights_path: pathlib.Path
-    temp_weights_dir: Optional[tempfile.TemporaryDirectory]
-    image_folder: dataiku.Folder
-    prompt: str
-    image_count: int
-    batch_size: int
-    filename_prefix: str
-    device_id: Optional[str]
-    clear_folder: bool
-    use_autocast: bool
-    torch_dtype: Optional[torch.dtype]
-    enable_attention_slicing: bool
-    random_seed: Optional[int]
-    num_inference_steps: int
-    guidance_scale: float
+    `_BaseImageGenerator` will auto-detect the device if it's set to
+    `None`
 
-    @classmethod
-    def from_config(cls, recipe_config, weights_folder, image_folder):
-        """Create a params instance from the recipe config
+    :param device_id: Device ID
+    :type device_id: str | None
 
-        :param recipe_config: Recipe config
-        :type recipe_config: Mapping[str, Any]
-        :param weights_folder: Input weights_folder
-        :type weights_folder: dataiku.Folder
-        :param image_folder: Output image_folder
-        :type image_folder: dataiku.Folder
-
-        Subclasses should override this class only if they add
-        additional input/output roles
-
-        :return: Created params instance
-        :rtype: Self
-        """
-        kwargs = cls._init_kwargs_from_config(
-            recipe_config, weights_folder, image_folder
-        )
-        return cls(**kwargs)
-
-    @staticmethod
-    def _init_kwargs_from_config(recipe_config, weights_folder, image_folder):
-        """Create the kwargs used by `from_config` to init the instance
-
-        :param recipe_config: Recipe config
-        :type recipe_config: Mapping[str, Any]
-        :param weights_folder: Input weights_folder
-        :type weights_folder: dataiku.Folder
-        :param image_folder: Output image_folder
-        :type image_folder: dataiku.Folder
-
-        Subclasses should override this method if they add new
-        parameters. Be sure to call the parent method
-
-        :return: kwargs that will be passed to `__init__()`
-        :rtype: dict[str, Any]
-        """
-        logging.info("Recipe config: %r", recipe_config)
-        logging.info("Weights folder: %r", weights_folder.name)
-        logging.info("Image folder: %r", image_folder.name)
-
-        weights_path, temp_weights_dir = get_file_path_or_temp(weights_folder)
-
-        device = recipe_config["device"]
-        if device == "auto":
-            device_id = None
-        else:
-            device_id = device
-
-        use_half_precision = recipe_config["use_half_precision"]
-        if use_half_precision:
-            torch_dtype = torch.float16
-        else:
-            # Use the default dtype of the model (float32)
-            torch_dtype = None
-
-        random_seed = recipe_config.get("random_seed")
-        if random_seed:
-            random_seed = int(random_seed)
-        else:
-            # Set random_seed to `None` if the value is `0`
-            random_seed = None
-
-        return {
-            "weights_folder": weights_folder,
-            "weights_path": pathlib.Path(weights_path),
-            "temp_weights_dir": temp_weights_dir,
-            "image_folder": image_folder,
-            "prompt": recipe_config["prompt"],
-            "image_count": int(recipe_config["image_count"]),
-            "batch_size": int(recipe_config["batch_size"]),
-            "filename_prefix": recipe_config["filename_prefix"],
-            "device_id": device_id,
-            "clear_folder": recipe_config["clear_folder"],
-            "use_autocast": recipe_config["use_autocast"],
-            "torch_dtype": torch_dtype,
-            "enable_attention_slicing": recipe_config[
-                "enable_attention_slicing"
-            ],
-            "random_seed": random_seed,
-            "num_inference_steps": int(recipe_config["num_inference_steps"]),
-            "guidance_scale": recipe_config["guidance_scale"],
-        }
+    :return: Casted device ID
+    :rtype: str | None
+    """
+    if device_id == "auto":
+        device_id = None
+    return device_id
 
 
-@dataclasses.dataclass
-class TextToImageParams(_BaseParams):
-    """Params used by the Text-to-Image recipe"""
+def _cast_torch_dtype(use_half_precision):
+    """Get the `torch_dtype` param based on `use_half_precision`
 
-    image_height: int
-    image_width: int
+    :param use_half_precision: Whether or not to use half-precison
+        (16-bit) floats
+    :type use_half_precision: bool
 
-    @classmethod
-    def _init_kwargs_from_config(
-        cls, recipe_config, weights_folder, image_folder
-    ):
-        # Get the shared kwargs from the parent class
-        kwargs = super()._init_kwargs_from_config(
-            recipe_config, weights_folder, image_folder
-        )
-
-        additional_kwargs = {
-            "image_height": int(recipe_config["image_height"]),
-            "image_width": int(recipe_config["image_width"]),
-        }
-        kwargs.update(additional_kwargs)
-
-        return kwargs
+    :return: torch.dtype that will be used, or `None` to use the default
+        torch.dtype of the model (float32)
+    :rtype: torch.dtype | None
+    """
+    if use_half_precision:
+        return torch.float16
+    else:
+        return None
 
 
-@dataclasses.dataclass
-class TextGuidedImageToImageParams(_BaseParams):
-    """Params used by the Text-Guided Image-to-Image recipe"""
+def _cast_random_seed(random_seed):
+    """Cast the `random_seed` param to an int, or set it to `None`
 
-    base_image: PIL.Image.Image
-    strength: float
+    The random seed will be casted to `None` if its value is `0`. This
+    is needed because DSS sets "INT" params to `0` by default
 
-    @classmethod
-    def from_config(
-        cls,
-        recipe_config,
-        weights_folder,
-        image_folder,
-        base_image_folder,
-    ):
-        """
-        :param base_image_folder: Input base_image_folder
-        :type base_image_folder: dataiku.Folder
-        """
-        kwargs = cls._init_kwargs_from_config(
-            recipe_config,
-            weights_folder,
-            image_folder,
-            base_image_folder,
-        )
-        return cls(**kwargs)
+    Setting the value to `None` will cause `_BaseImageGenerator` to
+    generate its own random seed
 
-    @classmethod
-    def _init_kwargs_from_config(
-        cls,
-        recipe_config,
-        weights_folder,
-        image_folder,
-        base_image_folder,
-    ):
-        # Get the shared kwargs from the parent class
-        kwargs = super()._init_kwargs_from_config(
-            recipe_config, weights_folder, image_folder
-        )
+    :param random_seed: Random seed
+    :type random_seed: float | None
 
-        logging.info("Base image folder: %r", base_image_folder.name)
+    :return: Casted random seed
+    :rtype: int | None
+    """
+    if random_seed:
+        return int(random_seed)
+    else:
+        return None
 
-        base_image_path = recipe_config["base_image_path"]
-        logging.info("Opening base image: %r", base_image_path)
-        base_image = open_base_image(base_image_folder, base_image_path)
 
-        # The Hugging Face models work best with 512x512 images, as
-        # described in this article:
-        # https://huggingface.co/blog/stable_diffusion
-        if recipe_config["resize_base_image"]:
-            base_image = resize_image(base_image, min_size=512)
+def _get_base_config(recipe_config, weights_folder, image_folder):
+    """Create a DkuConfig instance that contains the shared params
 
-        additional_kwargs = {
-            "base_image": base_image,
-            "strength": recipe_config["strength"],
-        }
-        kwargs.update(additional_kwargs)
+    :param recipe_config: Recipe config
+    :type recipe_config: Mapping[str, Any]
+    :param weights_folder: Input weights_folder
+    :type weights_folder: dataiku.Folder
+    :param image_folder: Output image_folder
+    :type image_folder: dataiku.Folder
 
-        return kwargs
+    :return: Created DkuConfig instance
+    :rtype: dku_config.DkuConfig
+    """
+    logging.info("Recipe config: %r", recipe_config)
+    logging.info("Weights folder: %r", weights_folder.name)
+    logging.info("Image folder: %r", image_folder.name)
+
+    weights_path, temp_weights_dir = get_file_path_or_temp(weights_folder)
+
+    config = DkuConfig()
+
+    config.add_param(
+        name="weights_folder",
+        label="Weights folder",
+        value=weights_folder,
+        required=True,
+    )
+    config.add_param(name="weights_path", value=weights_path, required=True)
+    config.add_param(
+        name="temp_weights_dir", value=temp_weights_dir, required=False
+    )
+    config.add_param(
+        name="image_folder",
+        label="Image folder",
+        value=image_folder,
+        required=True,
+    )
+
+    config.add_param(
+        name="prompt",
+        label="Prompt",
+        value=recipe_config.get("prompt"),
+        required=True,
+    )
+    config.add_param(
+        name="image_count",
+        label="Image count",
+        value=recipe_config.get("image_count"),
+        default=1,
+        cast_to=int,
+        checks=(
+            {
+                "type": "sup_eq",
+                "op": 1,
+            },
+        ),
+    )
+    config.add_param(
+        name="batch_size",
+        label="Batch size",
+        value=recipe_config.get("batch_size"),
+        default=1,
+        cast_to=int,
+        checks=(
+            {
+                "type": "sup_eq",
+                "op": 1,
+            },
+        ),
+    )
+    config.add_param(
+        name="filename_prefix",
+        label="Filename prefix",
+        value=recipe_config.get("filename_prefix"),
+        default="image-",
+    )
+    config.add_param(
+        name="device_id",
+        label="CUDA device",
+        value=recipe_config.get("device"),
+        required=False,
+        cast_to=_cast_device_id,
+    )
+    config.add_param(
+        name="clear_folder",
+        label="Clear folder",
+        value=recipe_config.get("clear_folder"),
+        default=True,
+    )
+    config.add_param(
+        name="use_autocast",
+        label="CUDA autocast",
+        value=recipe_config.get("use_autocast"),
+        default=True,
+    )
+    config.add_param(
+        name="torch_dtype",
+        label="Half precision",
+        value=recipe_config.get("use_half_precision"),
+        default=True,
+        cast_to=_cast_torch_dtype,
+    )
+    config.add_param(
+        name="enable_attention_slicing",
+        label="Attention slicing",
+        value=recipe_config.get("enable_attention_slicing"),
+        default=True,
+    )
+    config.add_param(
+        name="random_seed",
+        label="Random seed",
+        value=recipe_config.get("random_seed"),
+        required=False,
+        cast_to=_cast_random_seed,
+    )
+    config.add_param(
+        name="num_inference_steps",
+        label="Denoising steps",
+        value=recipe_config.get("num_inference_steps"),
+        default=50,
+        cast_to=int,
+        checks=(
+            {
+                "type": "sup_eq",
+                "op": 1,
+            },
+        ),
+    )
+    config.add_param(
+        name="guidance_scale",
+        label="Guidance scale",
+        value=recipe_config.get("guidance_scale"),
+        default=7.5,
+        cast_to=float,
+        checks=(
+            {
+                "type": "sup_eq",
+                "op": 0.0,
+            },
+        ),
+    )
+
+    return config
+
+
+def get_text_to_image_config(recipe_config, weights_folder, image_folder):
+    """Create a DkuConfig instance that contains the TextToImage params
+
+    :param recipe_config: Recipe config
+    :type recipe_config: Mapping[str, Any]
+    :param weights_folder: Input weights_folder
+    :type weights_folder: dataiku.Folder
+    :param image_folder: Output image_folder
+    :type image_folder: dataiku.Folder
+
+    :return: Created DkuConfig instance
+    :rtype: dku_config.DkuConfig
+    """
+    config = _get_base_config(recipe_config, weights_folder, image_folder)
+
+    image_height = recipe_config.get("image_height")
+    image_width = recipe_config.get("image_width")
+
+    config.add_param(
+        name="image_height",
+        label="Image height",
+        value=image_height,
+        default=512,
+        cast_to=int,
+        checks=(
+            {
+                "type": "sup_eq",
+                "op": 1,
+            },
+            {
+                "type": "custom",
+                "op": (image_height is not None) and (image_height % 64 == 0),
+                "err_msg": (
+                    "Should be a multiple of 64 "
+                    f"(Currently {image_height!r})."
+                ),
+            },
+        ),
+    )
+    config.add_param(
+        name="image_width",
+        label="Image width",
+        value=image_width,
+        default=512,
+        cast_to=int,
+        checks=(
+            {
+                "type": "sup_eq",
+                "op": 1,
+            },
+            {
+                "type": "custom",
+                "op": (image_width is not None) and (image_width % 64 == 0),
+                "err_msg": (
+                    f"Should be a multiple of 64 (Currently {image_width!r})."
+                ),
+            },
+        ),
+    )
+
+    return config
+
+
+def get_text_guided_image_to_image_config(
+    recipe_config, weights_folder, image_folder, base_image_folder
+):
+    """Create a DkuConfig instance that contains the
+    TextGuidedImageToImage params
+
+    :param recipe_config: Recipe config
+    :type recipe_config: Mapping[str, Any]
+    :param weights_folder: Input weights_folder
+    :type weights_folder: dataiku.Folder
+    :param image_folder: Output image_folder
+    :type image_folder: dataiku.Folder
+    :param base_image_folder: Input base_image_folder
+    :type base_image_folder: dataiku.Folder
+
+    :return: Created DkuConfig instance
+    :rtype: dku_config.DkuConfig
+    """
+    config = _get_base_config(recipe_config, weights_folder, image_folder)
+
+    logging.info("Base image folder: %r", base_image_folder.name)
+
+    config.add_param(
+        name="base_image_path",
+        label="Base image",
+        value=recipe_config.get("base_image_path"),
+        required=True,
+    )
+    config.add_param(
+        name="resize_base_image",
+        label="Resize images",
+        value=recipe_config.get("resize_base_image"),
+        default=True,
+    )
+    config.add_param(
+        name="strength",
+        label="Strength",
+        value=recipe_config.get("strength"),
+        default=0.8,
+        cast_to=float,
+        checks=(
+            {
+                "type": "between",
+                "op": (0.0, 1.0),
+            },
+        ),
+    )
+
+    logging.info("Opening base image: %r", config.base_image_path)
+    base_image = open_base_image(
+        folder=base_image_folder,
+        image_path=config.base_image_path,
+        resize=config.resize_base_image,
+    )
+    config.add_param(name="base_image", value=base_image, required=True)
+
+    return config
