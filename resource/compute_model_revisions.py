@@ -1,8 +1,9 @@
 import logging
 
+from dku_config import DkuConfig
 from ai_art import git
 from ai_art.constants import DEFAULT_REVISIONS
-from ai_art.params import resolve_model_repo
+from ai_art.params import add_model_repo, add_hugging_face_credentials
 
 
 def _get_branches_from_remote(config):
@@ -11,21 +12,20 @@ def _get_branches_from_remote(config):
     :param config: Macro config
     :type config: Mapping[str, Any]
 
-    :raises KeyError: The Hugging Face credentials aren't set in the
-        config
+    :raises dku_config.dss_parameter.DSSParameterError: Params needed to
+        connect to the repo aren't set in the config
 
     :return: Branches from the Git repo
     :rtype: Generator[str, None, None]
     """
-    model_repo = resolve_model_repo(config)
-    credentials = config["hugging_face_credentials"]
-    hugging_face_username = credentials["username"]
-    hugging_face_access_token = credentials["access_token"]
+    dku_config = DkuConfig()
+    add_model_repo(dku_config, config)
+    add_hugging_face_credentials(dku_config, config)
 
     branches = git.get_branches(
-        model_repo,
-        username=hugging_face_username,
-        password=hugging_face_access_token,
+        dku_config.model_repo,
+        username=dku_config.hugging_face_username,
+        password=dku_config.hugging_face_access_token,
     )
     return branches
 

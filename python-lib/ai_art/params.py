@@ -1,6 +1,7 @@
 import logging
 from urllib.parse import urljoin
 
+import dataiku
 import torch
 
 from dku_config import DkuConfig
@@ -9,24 +10,15 @@ from ai_art.folder import get_file_path_or_temp
 from ai_art.image import open_base_image
 
 
-def resolve_model_repo(config):
+def _cast_model_repo(model_repo_path):
     """Resolve the model_repo param to an absolute URL
 
-    :param config: Recipe config
-    :type config: Mapping[str, Any]
+    :param model_repo_path: Path component of the model repo URL
+    :type model_repo_path: str
 
-    :raises ValueError: `model_repo` is set to "CUSTOM", but
-        `custom_model_repo` isn't defined
-
-    :return: URL of the model repo
+    :return: Absolute URL of the model repo
     :rtype: str
     """
-    model_repo_path = config["model_repo"]
-    if model_repo_path == "CUSTOM":
-        model_repo_path = config.get("custom_model_repo")
-        if not model_repo_path:
-            raise ValueError("undefined parameter: Custom model repo")
-
     model_repo = urljoin(HUGGING_FACE_BASE_URL, model_repo_path)
     return model_repo
 
@@ -87,7 +79,7 @@ def _cast_random_seed(random_seed):
 
 
 def _get_base_config(recipe_config, weights_folder, image_folder):
-    """Create a DkuConfig instance that contains the shared params
+    """Create a DkuConfig instance that contains shared recipe params
 
     :param recipe_config: Recipe config
     :type recipe_config: Mapping[str, Any]
@@ -349,5 +341,97 @@ def get_text_guided_image_to_image_config(
         resize=config.resize_base_image,
     )
     config.add_param(name="base_image", value=base_image, required=True)
+
+    return config
+
+
+def add_model_repo(dku_config, macro_config):
+    """Add the model_repo param to the DkuConfig instance
+
+    :param dku_config: DkuConfig instance that the param will be added
+        to
+    :type dku_config: dku_config.DkuConfig
+    :param macro_config: Macro config that contains the model_repo param
+    :type macro_config: Mapping[str, Any]
+
+    :return: None
+    """
+    dku_config.add_param(
+        name="model_repo_choice",
+        label="Model repo",
+        value=macro_config.get("model_repo"),
+        default="runwayml/stable-diffusion-v1-5",
+    )
+    if dku_config.model_repo_choice == "CUSTOM":
+        # Override model_repo_choice with the value from
+        # custom_model_repo
+        dku_config.add_param(
+            name="model_repo_choice",
+            label="Custom model repo",
+            value=macro_config.get("custom_model_repo"),
+            required=True,
+        )
+    dku_config.add_param(
+        name="model_repo",
+        value=dku_config.model_repo_choice,
+        required=True,
+        cast_to=_cast_model_repo,
+    )
+
+
+def add_hugging_face_credentials(dku_config, macro_config):
+    """Add the hugging_face_credentials params to the DkuConfig instance
+
+    :param dku_config: DkuConfig instance that the params will be added
+        to
+    :type dku_config: dku_config.DkuConfig
+    :param macro_config: Macro config that contains the
+        hugging_face_credentials params
+    :type macro_config: Mapping[str, Any]
+
+    :return: None
+    """
+    hugging_face_credentials = macro_config.get("hugging_face_credentials", {})
+    dku_config.add_param(
+        name="hugging_face_username",
+        label="Hugging Face username",
+        value=hugging_face_credentials.get("username"),
+        required=True,
+    )
+    dku_config.add_param(
+        name="hugging_face_access_token",
+        label="Hugging Face access token",
+        value=hugging_face_credentials.get("access_token"),
+        required=True,
+    )
+
+
+def get_download_weights_config(macro_config):
+    """Create a DkuConfig instance that contains DownloadWeights params
+
+    :param macro_config: Macro config
+    :type macro_config: Mapping[str, Any]
+
+    :return: Created DkuConfig instance
+    :rtype: dku_config.DkuConfig
+    """
+    config = DkuConfig()
+
+    add_model_repo(config, macro_config)
+    add_hugging_face_credentials(config, macro_config)
+
+    config.add_param(
+        name="weights_folder",
+        label="Weights folder",
+        value=macro_config.get("weights_folder"),
+        required=True,
+        cast_to=dataiku.Folder,
+    )
+    config.add_param(
+        name="revision",
+        label="Model revision",
+        value=macro_config.get("revision"),
+        default="fp16",
+    )
 
     return config
