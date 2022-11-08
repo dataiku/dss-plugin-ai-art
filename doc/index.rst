@@ -18,9 +18,9 @@ CUDA
 A CUDA-capable GPU with at least 6 GB of VRAM is recommended.
 You can run the plugin without a GPU, but it will be significantly slower.
 
-If you're using a CUDA GPU, CUDA must be installed on the server. For
-installation instructions, see
-`NVIDIA CUDA Installation Guide for Linux <cuda-install-guide_>`_.
+If you're using a CUDA GPU, the NVIDIA drivers must be installed on the server.
+For installation instructions, see
+`NVIDIA Driver Installation Quickstart Guide <nvidia-install-guide_>`_.
 
 Download weights
 ----------------
@@ -146,4 +146,4 @@ image based on a text prompt.
 .. _git-lfs: https://git-lfs.github.com/
 .. _stable-diffusion-wiki: https://en.wikipedia.org/wiki/Stable_Diffusion
 .. _homebrew: https://brew.sh/
-.. _cuda-install-guide: https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html
+.. _nvidia-install-guide: https://docs.nvidia.com/datacenter/tesla/tesla-installation-notes/index.html
