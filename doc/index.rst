@@ -25,7 +25,7 @@ For installation instructions, see
 Download weights
 ----------------
 Before you can use the plugin, you need pre-trained weights. You can download
-weights from Hugging Face using the provided macro.
+weights from Hugging Face by following the steps below.
 
 .. warning::
    The weights available on Hugging Face are licensed under the CreativeML
