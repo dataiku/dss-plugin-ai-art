@@ -157,6 +157,7 @@ class _BaseImageGenerator(abc.ABC):
             batch_count = math.ceil(image_count / batch_size)
         else:
             batch_count = 1
+            batch_size = image_count
 
         logging.info(
             "Will generate %s total images in %s batches",
