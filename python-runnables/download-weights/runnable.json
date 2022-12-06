@@ -20,14 +20,11 @@
             "label": "Model repo",
             "type": "SELECT",
             "description": "Hugging Face repo to download the weights from",
-            "defaultValue": "runwayml/stable-diffusion-v1-5",
+            "defaultValue": "stabilityai/stable-diffusion-2",
             "mandatory": true,
             "selectChoices": [
-                {"value": "CompVis/stable-diffusion-v1-1", "label": "CompVis/stable-diffusion-v1-1"},
-                {"value": "CompVis/stable-diffusion-v1-2", "label": "CompVis/stable-diffusion-v1-2"},
-                {"value": "CompVis/stable-diffusion-v1-3", "label": "CompVis/stable-diffusion-v1-3"},
-                {"value": "CompVis/stable-diffusion-v1-4", "label": "CompVis/stable-diffusion-v1-4"},
-                {"value": "runwayml/stable-diffusion-v1-5", "label": "runwayml/stable-diffusion-v1-5"},
+                {"value": "stabilityai/stable-diffusion-2", "label": "stabilityai/stable-diffusion-2"},
+                {"value": "stabilityai/stable-diffusion-2-base", "label": "stabilityai/stable-diffusion-2-base"},
                 {"value": "CUSTOM", "label": "Custom..."}
             ]
         },
@@ -47,15 +44,7 @@
             "defaultValue": "fp16",
             "mandatory": true,
             "getChoicesFromPython": true,
-            "triggerParameters": ["model_repo", "custom_model_repo", "hugging_face_credentials"]
-        },
-        {
-            "name": "hugging_face_credentials",
-            "label": "Hugging Face credentials",
-            "type": "PRESET",
-            "description": "User credentials used to access Hugging Face",
-            "parameterSetId": "hugging-face-credentials",
-            "mandatory": true
+            "triggerParameters": ["model_repo", "custom_model_repo"]
         }
     ],
     "permissions": ["WRITE_CONF"],

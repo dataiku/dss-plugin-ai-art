@@ -19,7 +19,7 @@ class DownloadWeights(Runnable):
         :param plugin_config: contains the plugin settings
         """
         self.config = get_download_weights_config(macro_config)
-        self._log_config()
+        logging.info("Generated params: %r", self.config)
 
         # If LFS isn't installed, `git clone` will quietly download fake
         # placeholder files, which is confusing
@@ -49,11 +49,7 @@ class DownloadWeights(Runnable):
 
         logging.info("Cloning repo: %r", self.config.model_repo)
         git.shallow_clone(
-            self.config.model_repo,
-            file_path,
-            branch=self.config.revision,
-            username=self.config.hugging_face_username,
-            password=self.config.hugging_face_access_token,
+            self.config.model_repo, file_path, branch=self.config.revision
         )
 
         self._rm_git_dir(file_path)
@@ -90,14 +86,3 @@ class DownloadWeights(Runnable):
 
         logging.info("Deleting .git dir: %r", git_dir)
         shutil.rmtree(git_dir)
-
-    def _log_config(self):
-        """Log the config after redacting sensitive params
-
-        :return: None
-        """
-        redacted_config = self.config.config.copy()
-        if "hugging_face_access_token" in redacted_config:
-            redacted_config["hugging_face_access_token"] = "<REDACTED>"
-
-        logging.info("Generated params: %r", redacted_config)

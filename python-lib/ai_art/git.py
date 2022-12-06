@@ -3,61 +3,27 @@ import os
 import re
 import subprocess
 
-_CREDENTIAL_HELPER = (
-    "!f() {\n"
-    "  sleep 1\n"
-    '  echo "username=${GIT_USER}"\n'
-    '  echo "password=${GIT_PASSWORD}"\n'
-    "}\n"
-    "f"
-)
-"""Use a credential helper to pass credentials to Git via an env-var
 
-This allows us to avoid passing the password through the command-line
-
-Source: https://stackoverflow.com/a/43022442
-"""
-
-
-def _run_git_with_auth(command, username, password, **kwargs):
-    """Run the given Git command with authentication
+def _run_git(command, **kwargs):
+    """Run the given Git command
 
     :param command: Partial command to run, e.g.
         `["clone", "https://REPO"]`
     :type command: Iterable[str]
-    :param username: Username to authenticate with the HTTP Git server
-    :type username: str
-    :param password: Password to authenticate with the HTTP Git server
-    :type password: str
     :param kwargs: Extra kwargs to pass to `subprocess.run()`
     :type kwargs: Any
 
     :return: Output of `subprocess.run()`
     :rtype: subprocess.CompletedProcess
     """
-    if "env" in kwargs:
-        # Add the auth env-vars to the user-provided env dict
-        env = kwargs["env"].copy()
-    else:
-        # Inherit the parent env-vars when the env kwarg isn't set
-        env = os.environ.copy()
-
-    env["GIT_USER"] = username
-    env["GIT_PASSWORD"] = password
-    kwargs["env"] = env
-
-    full_command = (
-        "git",
-        "-c",
-        f"credential.helper={_CREDENTIAL_HELPER}",
-    ) + tuple(command)
+    full_command = ("git",) + tuple(command)
 
     logging.info("Running command: %s", full_command)
     return subprocess.run(full_command, **kwargs)
 
 
-def shallow_clone(repo, dir_, *, branch, username, password):
-    """Perform a shallow clone of a password-protected HTTP Git repo
+def shallow_clone(repo, dir_, *, branch):
+    """Perform a shallow clone of a Git repo
 
     :param repo: Git repo to clone
     :type repo: str
@@ -65,10 +31,6 @@ def shallow_clone(repo, dir_, *, branch, username, password):
     :type dir_: str | os.PathLike
     :param branch: Branch that will be fetched
     :type branch: str
-    :param username: Username used to log into the remote repo
-    :type username: str
-    :param password: Password used to log into the remote repo
-    :type password: str
 
     :return: None
     """
@@ -83,7 +45,7 @@ def shallow_clone(repo, dir_, *, branch, username, password):
         repo,
         dir_,
     )
-    _run_git_with_auth(command, username, password, check=True)
+    _run_git(command, check=True)
 
 
 _PARSE_BRANCH_REGEX = re.compile(
@@ -125,15 +87,11 @@ def _parse_branch_from_line(line):
     return None
 
 
-def get_branches(repo, *, username, password):
-    """Get the branches of a password-protected remote repo
+def get_branches(repo):
+    """Get the branches of a remote repo
 
     :param repo: Git repo to clone
     :type repo: str
-    :param username: Username used to log into the remote repo
-    :type username: str
-    :param password: Password used to log into the remote repo
-    :type password: str
 
     :return: Generator of branches
     :rtype: Generator[str, None, None]
@@ -147,10 +105,8 @@ def get_branches(repo, *, username, password):
     env = os.environ.copy()
     env["LC_ALL"] = "C"
 
-    proc = _run_git_with_auth(
+    proc = _run_git(
         command,
-        username,
-        password,
         check=True,
         stdout=subprocess.PIPE,
         text=True,
@@ -169,10 +125,9 @@ def check_lfs():
 
     :return: None
     """
-    command = ("git", "config", "--get-regexp", r"^filter\.lfs\.")
-    logging.info("Running command: %s", command)
+    command = ("config", "--get-regexp", r"^filter\.lfs\.")
     try:
         # The LFS config options are set when you run `git lfs install`
-        subprocess.run(command, check=True)
+        _run_git(command, check=True)
     except subprocess.CalledProcessError as e:
         raise RuntimeError("git-lfs isn't installed") from e

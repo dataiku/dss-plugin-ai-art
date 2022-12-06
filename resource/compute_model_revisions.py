@@ -3,7 +3,7 @@ import logging
 from dku_config import DkuConfig
 from ai_art import git
 from ai_art.constants import DEFAULT_REVISIONS
-from ai_art.params import add_model_repo, add_hugging_face_credentials
+from ai_art.params import add_model_repo
 
 
 def _get_branches_from_remote(config):
@@ -20,13 +20,8 @@ def _get_branches_from_remote(config):
     """
     dku_config = DkuConfig()
     add_model_repo(dku_config, config)
-    add_hugging_face_credentials(dku_config, config)
 
-    branches = git.get_branches(
-        dku_config.model_repo,
-        username=dku_config.hugging_face_username,
-        password=dku_config.hugging_face_access_token,
-    )
+    branches = git.get_branches(dku_config.model_repo)
     return branches
 
 
@@ -58,8 +53,8 @@ def do(payload, config, plugin_config, inputs):
     """Compute a list of Git branches for the "revision" param
 
     If we're unable to retrieve the branches for any reason (e.g. the
-    Hugging Face credentials are incorrect), we fall back to the default
-    revisions that are intended to be used
+    repo isn't accessible), we fall back to the default revisions that
+    are intended to be used
     """
     try:
         # Convert the generator to a tuple so that any errors are caught

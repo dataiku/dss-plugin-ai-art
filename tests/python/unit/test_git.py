@@ -36,7 +36,7 @@ class TestGetBranches:
         run = mocker.patch("subprocess.run")
         run.return_value.stdout = self._LS_REMOTE_OUTPUT
 
-        branches = get_branches("REPO", username="USER", password="PASS")
+        branches = get_branches("REPO")
 
         assert tuple(branches) == ("branch1", "branch2", "branch3")
         run.assert_called_once()
@@ -45,7 +45,5 @@ class TestGetBranches:
 class TestShallowClone:
     def test_clone(self, mocker):
         run = mocker.patch("subprocess.run")
-        shallow_clone(
-            "REPO", "DIR", branch="BRANCH", username="USER", password="PASS"
-        )
+        shallow_clone("REPO", "DIR", branch="BRANCH")
         run.assert_called_once()

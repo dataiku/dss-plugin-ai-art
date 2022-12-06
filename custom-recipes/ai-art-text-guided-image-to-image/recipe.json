@@ -141,10 +141,29 @@
             "type": "BOOLEAN",
             "name": "resize_base_image",
             "label": "Resize images",
-            "description": "Generate images that are resized to 512x512 (maintaining aspect ratio), instead of using the resolution of the base image. The Hugging Face weights work best with this resolution",
+            "description": "Generate images that are resized, instead of using the resolution of the base image. The Hugging Face weights work best with set resolutions",
             "defaultValue": true,
             "mandatory": true,
             "visibilityCondition": "model.show_advanced"
+        },
+        {
+            "type": "SELECT",
+            "name": "resize_base_image_to",
+            "label": "Image size",
+            "description": "Resize the images to this size (maintaining aspect ratio)",
+            "defaultValue": "512",
+            "mandatory": true,
+            "selectChoices": [
+                {
+                    "value": "512",
+                    "label": "512"
+                },
+                {
+                    "value": "768",
+                    "label": "768"
+                }
+            ],
+            "visibilityCondition": "model.show_advanced && model.resize_base_image"
         },
         {
             "type": "BOOLEAN",

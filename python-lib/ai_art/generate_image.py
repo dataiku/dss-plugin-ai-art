@@ -45,7 +45,7 @@ class _BaseImageGenerator(abc.ABC):
                 "Half precision isn't supported when running on the CPU. "
                 "Using full precision instead"
             )
-            torch_dtype = None
+            torch_dtype = torch.float32
 
         logging.info("Loading weights")
         self._init_pipe(weights_path, torch_dtype)

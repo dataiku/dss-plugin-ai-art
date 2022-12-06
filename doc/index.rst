@@ -29,8 +29,8 @@ weights from Hugging Face by following the steps below.
 
 .. warning::
    The weights available on Hugging Face are licensed under the CreativeML
-   OpenRAIL-M license, which restricts usage. You can view the license
-   `here <compvis-license_>`_.
+   OpenRAIL++-M license, which restricts usage. You can view the license
+   `here <stabilityai-license_>`_.
 
    If you don't agree with the license, you can alternatively use your own
    weights and skip this section
@@ -58,23 +58,8 @@ weights from Hugging Face by following the steps below.
        brew install git-lfs
        git lfs install
 
-#.  Create a `Hugging Face <hugging-face-sign-up_>`_ account if you don't
-    already have one.
-
-#.  Create a read-only access token in your
-    `account settings <hugging-face-token-settings_>`_. This will be used by DSS
-    to access Hugging Face.
-
-#.  Choose the model that you want to download from `Runway's <runway-org_>`_ or
-    `CompVis' <compvis-org_>`_ organization page, and agree to the license in
-    order to access the repository.
-
-    .. note::
-       If you're not sure which model to choose, pick the one with the highest
-       version, e.g. *runwayml/stable-diffusion-v1-5*.
-
-#.  Create a managed folder in DSS, and download your chosen model to it using
-    the *Download Stable Diffusion weights* macro.
+#.  Create a managed folder in DSS, and download the model to it using the
+    *Download Stable Diffusion weights* macro.
 
     .. warning::
        Using a folder that's stored on the local filesystem is recommended. If
@@ -138,11 +123,7 @@ image based on a text prompt.
 .. image:: _static/instructions-text-guided-image-to-image-2.png
    :alt: Screenshot of the recipe settings
 
-.. _hugging-face-sign-up: https://huggingface.co/join
-.. _hugging-face-token-settings: https://huggingface.co/settings/tokens
-.. _runway-org: https://huggingface.co/runwayml
-.. _compvis-org: https://huggingface.co/CompVis
-.. _compvis-license: https://huggingface.co/spaces/CompVis/stable-diffusion-license
+.. _stabilityai-license: https://huggingface.co/stabilityai/stable-diffusion-2/raw/main/LICENSE-MODEL
 .. _git-lfs: https://git-lfs.github.com/
 .. _stable-diffusion-wiki: https://en.wikipedia.org/wiki/Stable_Diffusion
 .. _homebrew: https://brew.sh/

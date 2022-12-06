@@ -321,6 +321,19 @@ def get_text_guided_image_to_image_config(
         default=True,
     )
     config.add_param(
+        name="resize_base_image_to",
+        label="Image size",
+        value=recipe_config.get("resize_base_image_to"),
+        default=512,
+        cast_to=int,
+        checks=(
+            {
+                "type": "in",
+                "op": frozenset((512, 768)),
+            },
+        ),
+    )
+    config.add_param(
         name="strength",
         label="Strength",
         value=recipe_config.get("strength"),
@@ -334,11 +347,16 @@ def get_text_guided_image_to_image_config(
         ),
     )
 
+    if config.resize_base_image:
+        resize_to = config.resize_base_image_to
+    else:
+        resize_to = None
+
     logging.info("Opening base image: %r", config.base_image_path)
     base_image = open_base_image(
         folder=base_image_folder,
         image_path=config.base_image_path,
-        resize=config.resize_base_image,
+        resize_to=resize_to,
     )
     config.add_param(name="base_image", value=base_image, required=True)
 
@@ -379,33 +397,6 @@ def add_model_repo(dku_config, macro_config):
     )
 
 
-def add_hugging_face_credentials(dku_config, macro_config):
-    """Add the hugging_face_credentials params to the DkuConfig instance
-
-    :param dku_config: DkuConfig instance that the params will be added
-        to
-    :type dku_config: dku_config.DkuConfig
-    :param macro_config: Macro config that contains the
-        hugging_face_credentials params
-    :type macro_config: Mapping[str, Any]
-
-    :return: None
-    """
-    hugging_face_credentials = macro_config.get("hugging_face_credentials", {})
-    dku_config.add_param(
-        name="hugging_face_username",
-        label="Hugging Face username",
-        value=hugging_face_credentials.get("username"),
-        required=True,
-    )
-    dku_config.add_param(
-        name="hugging_face_access_token",
-        label="Hugging Face access token",
-        value=hugging_face_credentials.get("access_token"),
-        required=True,
-    )
-
-
 def get_download_weights_config(macro_config):
     """Create a DkuConfig instance that contains DownloadWeights params
 
@@ -418,7 +409,6 @@ def get_download_weights_config(macro_config):
     config = DkuConfig()
 
     add_model_repo(config, macro_config)
-    add_hugging_face_credentials(config, macro_config)
 
     config.add_param(
         name="weights_folder",
