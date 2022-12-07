@@ -56,15 +56,6 @@
             "disableAutoReload": true
         },
         {
-            "type": "INT",
-            "name": "image_count",
-            "label": "Image count",
-            "description": "Number of images to generate",
-            "mandatory": true,
-            "defaultValue": 1,
-            "minI": 1
-        },
-        {
             "type": "BOOLEAN",
             "name": "use_half_precision",
             "label": "Half precision",
@@ -78,6 +69,48 @@
             "label": "Show advanced settings",
             "defaultValue": false,
             "mandatory": true
+        },
+
+        {
+            "type": "SEPARATOR",
+            "name": "image-seperator",
+            "label": "Image settings"
+        },
+        {
+            "type": "INT",
+            "name": "image_count",
+            "label": "Image count",
+            "description": "Number of images to generate",
+            "mandatory": true,
+            "defaultValue": 1,
+            "minI": 1
+        },
+        {
+            "type": "BOOLEAN",
+            "name": "resize_base_image",
+            "label": "Resize images",
+            "description": "Generate images that are resized, instead of using the resolution of the base image. The Hugging Face weights work best with set resolutions",
+            "defaultValue": true,
+            "mandatory": true
+        },
+        {
+            "type": "SELECT",
+            "name": "resize_base_image_to",
+            "label": "Image size",
+            "description": "Resize the images to this size (maintaining aspect ratio)",
+            "defaultValue": "512",
+            "mandatory": true,
+            "selectChoices": [
+                {
+                    "value": "512",
+                    "label": "512"
+                },
+                {
+                    "value": "768",
+                    "label": "768"
+                }
+            ],
+            "visibilityCondition": "model.resize_base_image"
         },
 
         {
@@ -133,37 +166,9 @@
 
         {
             "type": "SEPARATOR",
-            "name": "image-seperator",
-            "label": "Image settings",
+            "name": "inference-separator",
+            "label": "Inference settings",
             "visibilityCondition": "model.show_advanced"
-        },
-        {
-            "type": "BOOLEAN",
-            "name": "resize_base_image",
-            "label": "Resize images",
-            "description": "Generate images that are resized, instead of using the resolution of the base image. The Hugging Face weights work best with set resolutions",
-            "defaultValue": true,
-            "mandatory": true,
-            "visibilityCondition": "model.show_advanced"
-        },
-        {
-            "type": "SELECT",
-            "name": "resize_base_image_to",
-            "label": "Image size",
-            "description": "Resize the images to this size (maintaining aspect ratio)",
-            "defaultValue": "512",
-            "mandatory": true,
-            "selectChoices": [
-                {
-                    "value": "512",
-                    "label": "512"
-                },
-                {
-                    "value": "768",
-                    "label": "768"
-                }
-            ],
-            "visibilityCondition": "model.show_advanced && model.resize_base_image"
         },
         {
             "type": "BOOLEAN",
