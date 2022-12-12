@@ -28,7 +28,9 @@ class _BaseImageGenerator(abc.ABC):
             the CPU will be used
         :type device_id: str | None
         :param torch_dtype: Override the default `torch.dtype` and load
-            the model under this dtype
+            the model under this dtype. This has no effect if running on
+            the CPU (float32 will always be used because the CPU doesn't
+            support float16)
         :type torch_dtype: torch.dtype | None
         :param enable_attention_slicing: Enable sliced attention
             computation when generating the images
@@ -38,13 +40,14 @@ class _BaseImageGenerator(abc.ABC):
         """
         self._init_device(device_id)
 
-        if torch_dtype is torch.float16 and self._device.type == "cpu":
-            # Running the pipeline will fail if half precison is enabled
-            # when using the CPU
-            logging.warning(
-                "Half precision isn't supported when running on the CPU. "
-                "Using full precision instead"
-            )
+        # Running the pipeline will fail if half precison is enabled
+        # when using the CPU
+        if self._device.type == "cpu":
+            if torch_dtype is torch.float16:
+                logging.warning(
+                    "Half precision isn't supported when running on the CPU. "
+                    "Using full precision instead"
+                )
             torch_dtype = torch.float32
 
         logging.info("Loading weights")
