@@ -12,22 +12,47 @@ For usage instructions, see *INSERT LINK HERE*.
   documentation in [doc](doc/index.rst).
 
 ## Testing and linting
-Install the development dependencies:
-```bash
-pip install -r requirements-dev.txt
-```
-
 Format the code using Black:
 ```bash
-black .
+make black
 ```
 
-Lint the code using Flake8:
+Lint the code using Flake8, and verify that the code was formatted using Black:
 ```bash
-flake8 .
+make lint
 ```
 
-> *TODO*: Add tests
+Run unit tests:
+```bash
+make unit-tests
+```
+
+Run integration tests:
+```bash
+make integration-tests
+```
+
+Run all linters and tests at once:
+```bash
+make tests
+```
+
+## Building
+Create a plugin archive that can be imported into DSS:
+```bash
+make plugin
+```
+
+By default, the plugin will use CUDA 10.2. You can build it for a different
+version by setting the `$CUDA_VERSION` env-var:
+```bash
+CUDA_VERSION=11.6 make plugin
+```
+
+Supported CUDA versions:
+- 10.2
+- 11.3
+- 11.6
 
 ## Known limitations
 The weights must be stored on the local filesystem. If a remote folder (S3, etc)

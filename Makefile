@@ -61,7 +61,36 @@ integration-tests:
 		pytest tests/python/integration --alluredir=tests/allure_report || ret=$$?; exit $$ret \
 	)
 
-tests: unit-tests integration-tests
+lint:
+	@echo "Running linters..."
+	@python3 -m venv --clear env
+	@( \
+		. env/bin/activate && \
+		pip3 install --upgrade pip && \
+		pip3 install -r requirements-lint.txt && \
+		echo "Running Flake8..." && \
+		flake8 . && \
+		echo "Running Black..." && \
+		black --check . \
+	)
+
+black:
+	@echo "Formatting code using Black..."
+#	Stash any unstaged changes so that we can revert back if needed
+	@( \
+		git_stash="$$(git stash create)" && \
+		echo "Stashed changes to $${git_stash:-HEAD}" \
+	)
+	@python3 -m venv --clear env
+	@( \
+		. env/bin/activate && \
+		pip3 install --upgrade pip && \
+		pip3 install -r requirements-lint.txt && \
+		echo "Running Black..." && \
+		black . \
+	)
+
+tests: lint unit-tests integration-tests
 
 dist-clean:
 	rm -rf dist
