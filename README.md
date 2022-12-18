@@ -1,8 +1,4 @@
 # AI Art
-> **Warning**
-  This plugin is still under development, and all features are
-  subject-to-change. It should not be used in production.
-
 AI Art is a plugin for DSS that allows you to generate images from text prompts.
 
 ## Usage
