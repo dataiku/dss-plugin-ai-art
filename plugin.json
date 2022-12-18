@@ -8,6 +8,7 @@
         "icon": "icon-picture",
         "tags": ["AutoML", "Image", "Machine Learning", "NLP"],
         "url": "TODO: add a link here",
-        "licenseInfo": "Apache Software License"
+        "licenseInfo": "Apache Software License",
+        "supportLevel": "NOT_SUPPORTED"
     }
 }
