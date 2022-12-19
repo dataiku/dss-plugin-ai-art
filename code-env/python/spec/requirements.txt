@@ -9,3 +9,7 @@ Pillow==9.3.0
 torch==1.12.1+cu102; sys_platform != "darwin"
 # CUDA 11 doesn't support macOS, so just download the default version
 torch==1.12.1; sys_platform == "darwin"
+
+# Newer versions (>=1.24) don't work with DSS
+# This is the newest version that supports Python 3.7
+numpy==1.21.6
