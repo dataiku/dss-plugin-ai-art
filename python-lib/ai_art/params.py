@@ -171,7 +171,7 @@ def _get_base_config(recipe_config, weights_folder, image_folder):
         name="use_autocast",
         label="CUDA autocast",
         value=recipe_config.get("use_autocast"),
-        default=True,
+        default=False,
     )
     config.add_param(
         name="torch_dtype",
@@ -378,7 +378,7 @@ def add_model_repo(dku_config, macro_config):
         name="model_repo_choice",
         label="Model repo",
         value=macro_config.get("model_repo"),
-        default="runwayml/stable-diffusion-v1-5",
+        default="stabilityai/stable-diffusion-2-1",
     )
     if dku_config.model_repo_choice == "CUSTOM":
         # Override model_repo_choice with the value from

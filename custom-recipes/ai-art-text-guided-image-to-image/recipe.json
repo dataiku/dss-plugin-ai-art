@@ -158,8 +158,8 @@
             "type": "BOOLEAN",
             "name": "use_autocast",
             "label": "CUDA autocast",
-            "description": "Enable autocasting when using CUDA. Faster, but has a negligible quality loss",
-            "defaultValue": true,
+            "description": "Enable autocasting when using CUDA. Faster, but it may cause the recipe to generate solid black images in some situations",
+            "defaultValue": false,
             "mandatory": true,
             "visibilityCondition": "model.show_advanced"
         },

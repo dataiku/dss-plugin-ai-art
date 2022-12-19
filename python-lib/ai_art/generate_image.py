@@ -217,7 +217,7 @@ class TextToImage(_BaseImageGenerator):
         image_count=1,
         batch_size=None,
         *,
-        use_autocast=True,
+        use_autocast=False,
         random_seed=None,
         height=512,
         width=512,
@@ -286,7 +286,7 @@ class TextGuidedImageToImage(_BaseImageGenerator):
         image_count=1,
         batch_size=None,
         *,
-        use_autocast=True,
+        use_autocast=False,
         random_seed=None,
         strength=0.8,
         num_inference_steps=50,
@@ -323,7 +323,7 @@ class TextGuidedImageToImage(_BaseImageGenerator):
         """
         yield from self._generate_image_batches(
             prompt=prompt,
-            init_image=init_image,
+            image=init_image,
             image_count=image_count,
             batch_size=batch_size,
             use_autocast=use_autocast,

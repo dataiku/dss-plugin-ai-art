@@ -20,9 +20,11 @@
             "label": "Model repo",
             "type": "SELECT",
             "description": "Hugging Face repo to download the weights from",
-            "defaultValue": "stabilityai/stable-diffusion-2",
+            "defaultValue": "stabilityai/stable-diffusion-2-1",
             "mandatory": true,
             "selectChoices": [
+                {"value": "stabilityai/stable-diffusion-2-1", "label": "stabilityai/stable-diffusion-2-1"},
+                {"value": "stabilityai/stable-diffusion-2-1-base", "label": "stabilityai/stable-diffusion-2-1-base"},
                 {"value": "stabilityai/stable-diffusion-2", "label": "stabilityai/stable-diffusion-2"},
                 {"value": "stabilityai/stable-diffusion-2-base", "label": "stabilityai/stable-diffusion-2-base"},
                 {"value": "CUSTOM", "label": "Custom..."}

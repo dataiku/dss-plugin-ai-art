@@ -62,7 +62,7 @@ class TestTextToImage:
                 prompt="PROMPT",
                 image_count=2,
                 batch_size=4,
-                use_autocast=False,
+                use_autocast=True,
                 random_seed=999999999,
                 height=256,
                 width=768,
@@ -159,7 +159,7 @@ class TestTextGuidedImageToImage:
     def test_generate_images_default_args(self, mocker, image):
         _exhaust(self.generator.generate_images("PROMPT", image))
         self.pipe.assert_called_once_with(
-            init_image=image,
+            image=image,
             num_images_per_prompt=1,
             generator=None,
             prompt="PROMPT",
@@ -175,7 +175,7 @@ class TestTextGuidedImageToImage:
                 init_image=image,
                 image_count=2,
                 batch_size=4,
-                use_autocast=False,
+                use_autocast=True,
                 random_seed=999999999,
                 strength=0.6,
                 num_inference_steps=30,
@@ -186,7 +186,7 @@ class TestTextGuidedImageToImage:
             num_images_per_prompt=2,
             generator=unittest.mock.ANY,
             prompt="PROMPT",
-            init_image=image,
+            image=image,
             strength=0.6,
             num_inference_steps=30,
             guidance_scale=6.0,
