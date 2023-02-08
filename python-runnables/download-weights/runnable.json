@@ -42,7 +42,7 @@
             "name": "revision",
             "label": "Model revision",
             "type": "SELECT",
-            "description": "Revision to download. The \"main\" revision should be used if you don't have a CUDA-capable GPU",
+            "description": "Revision to download. The \"main\" revision should be used if you don't have a CUDA-capable GPU. The \"fp16\" revision requires 5 GiB of space to download, while the \"main\" revision requires 10 GiB",
             "defaultValue": "fp16",
             "mandatory": true,
             "getChoicesFromPython": true,
