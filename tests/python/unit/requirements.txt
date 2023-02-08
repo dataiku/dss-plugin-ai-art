@@ -1,0 +1,3 @@
+pytest==7.0.1
+pytest-mock==3.10.0
+allure-pytest==2.12.0

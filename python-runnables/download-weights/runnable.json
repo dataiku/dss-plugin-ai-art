@@ -1,0 +1,95 @@
+{
+    "meta": {
+        "label": "Download Stable Diffusion weights",
+        "description": "Download Stable Diffusion weights from Hugging Face to a managed folder",
+        "icon": "icon-download"
+    },
+    // The macro needs direct access to the weights_folder to run `git clone`
+    "impersonate": false,
+    "paramsPythonSetup": "compute_model_revisions.py",
+    "params": [
+        {
+            "type": "SEPARATOR",
+            "name": "weights-folder-seperator",
+            "label": "Weights folder"
+        },
+        {
+            "name": "weights_folder_mode",
+            "label": "Use existing / Create new",
+            "type": "SELECT",
+            "description": "Create a new weights folder, or use an existing folder",
+            "defaultValue": "USE_EXISTING",
+            "mandatory": true,
+            "selectChoices": [
+                {"value": "USE_EXISTING", "label": "Use existing folder"},
+                {"value": "CREATE_NEW", "label": "Create new folder"}
+            ]
+        },
+        {
+            "name": "existing_weights_folder",
+            "label": "Weights folder",
+            "type": "MANAGED_FOLDER",
+            "description": "Existing folder that the weights will be downloaded to. The contents of the folder will be deleted if it isn't empty",
+            "mandatory": false,
+            "visibilityCondition": "model.weights_folder_mode == 'USE_EXISTING'"
+        },
+        {
+            "name": "new_weights_folder",
+            "label": "Weights folder name",
+            "type": "STRING",
+            "description": "Name of the new folder that the weights will be downloaded to. The folder will be created on the local filesystem",
+            "mandatory": false,
+            "visibilityCondition": "model.weights_folder_mode == 'CREATE_NEW'"
+        },
+
+        {
+            "type": "SEPARATOR",
+            "name": "model-seperator",
+            "label": "Model"
+        },
+        {
+            "name": "model_repo",
+            "label": "Model repo",
+            "type": "SELECT",
+            "description": "Hugging Face repo to download the weights from",
+            "defaultValue": "stabilityai/stable-diffusion-2-1",
+            "mandatory": true,
+            "selectChoices": [
+                {"value": "stabilityai/stable-diffusion-2-1", "label": "stabilityai/stable-diffusion-2-1"},
+                {"value": "stabilityai/stable-diffusion-2-1-base", "label": "stabilityai/stable-diffusion-2-1-base"},
+                {"value": "stabilityai/stable-diffusion-2", "label": "stabilityai/stable-diffusion-2"},
+                {"value": "stabilityai/stable-diffusion-2-base", "label": "stabilityai/stable-diffusion-2-base"},
+                {"value": "CUSTOM", "label": "Custom..."}
+            ]
+        },
+        {
+            "name": "custom_model_repo",
+            "label": "Custom model repo",
+            "type": "STRING",
+            "description": "Enter the name of a Hugging Face repo",
+            "mandatory": false,
+            "visibilityCondition": "model.model_repo == 'CUSTOM'"
+        },
+        {
+            "name": "revision",
+            "label": "Model revision",
+            "type": "SELECT",
+            "description": "Revision to download. The \"main\" revision should be used if you don't have a CUDA-capable GPU. The \"fp16\" revision requires 5 GiB of space to download, while the \"main\" revision requires 10 GiB",
+            "defaultValue": "fp16",
+            "mandatory": true,
+            "getChoicesFromPython": true,
+            "triggerParameters": ["model_repo", "custom_model_repo"]
+        }
+    ],
+    "permissions": ["WRITE_CONF"],
+    "resultType": "HTML",
+    "macroRoles": [
+        {
+            "type": "PROJECT_MACROS"
+        },
+        {
+            "type": "MANAGED_FOLDER",
+            "targetParamsKey": "existing_weights_folder"
+        }
+    ]
+}
