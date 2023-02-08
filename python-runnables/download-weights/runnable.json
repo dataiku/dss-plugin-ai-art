@@ -1,0 +1,63 @@
+{
+    "meta": {
+        "label": "Download Stable Diffusion weights",
+        "description": "Download Stable Diffusion weights from Hugging Face to a managed folder",
+        "icon": "icon-download"
+    },
+    // The macro needs direct access to the weights_folder to run `git clone`
+    "impersonate": false,
+    "paramsPythonSetup": "compute_model_revisions.py",
+    "params": [
+        {
+            "name": "weights_folder",
+            "label": "Weights folder",
+            "type": "MANAGED_FOLDER",
+            "description": "Folder that the weights will be downloaded to",
+            "mandatory": true
+        },
+        {
+            "name": "model_repo",
+            "label": "Model repo",
+            "type": "SELECT",
+            "description": "Hugging Face repo to download the weights from",
+            "defaultValue": "stabilityai/stable-diffusion-2-1",
+            "mandatory": true,
+            "selectChoices": [
+                {"value": "stabilityai/stable-diffusion-2-1", "label": "stabilityai/stable-diffusion-2-1"},
+                {"value": "stabilityai/stable-diffusion-2-1-base", "label": "stabilityai/stable-diffusion-2-1-base"},
+                {"value": "stabilityai/stable-diffusion-2", "label": "stabilityai/stable-diffusion-2"},
+                {"value": "stabilityai/stable-diffusion-2-base", "label": "stabilityai/stable-diffusion-2-base"},
+                {"value": "CUSTOM", "label": "Custom..."}
+            ]
+        },
+        {
+            "name": "custom_model_repo",
+            "label": "Custom model repo",
+            "type": "STRING",
+            "description": "Enter the name of a Hugging Face repo",
+            "mandatory": false,
+            "visibilityCondition": "model.model_repo == 'CUSTOM'"
+        },
+        {
+            "name": "revision",
+            "label": "Model revision",
+            "type": "SELECT",
+            "description": "Revision to download. The \"main\" revision should be used if you don't have a CUDA-capable GPU. The \"fp16\" revision requires 5 GiB of space to download, while the \"main\" revision requires 10 GiB",
+            "defaultValue": "fp16",
+            "mandatory": true,
+            "getChoicesFromPython": true,
+            "triggerParameters": ["model_repo", "custom_model_repo"]
+        }
+    ],
+    "permissions": ["WRITE_CONF"],
+    "resultType": "HTML",
+    "macroRoles": [
+        {
+            "type": "PROJECT_MACROS"
+        },
+        {
+            "type": "MANAGED_FOLDER",
+            "targetParamsKey": "weights_folder"
+        }
+    ]
+}

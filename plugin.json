@@ -1,0 +1,14 @@
+{
+    "id": "ai-art-cu102",
+    "version": "0.0.1",
+    "meta": {
+        "label": "AI Art (CUDA 10.2)",
+        "description": "Use Stable Diffusion to generate images from text prompts",
+        "author": "Dataiku (Zach McCallen)",
+        "icon": "icon-picture",
+        "tags": ["AutoML", "Image", "Machine Learning", "NLP"],
+        "url": "TODO: add a link here",
+        "licenseInfo": "Apache Software License",
+        "supportLevel": "NOT_SUPPORTED"
+    }
+}

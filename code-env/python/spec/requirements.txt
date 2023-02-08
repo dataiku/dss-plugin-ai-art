@@ -1,0 +1,15 @@
+diffusers==0.10.2
+transformers==4.25.1
+ftfy==6.1.1
+accelerate==0.15.0
+Pillow==9.3.0
+
+# Get PyTorch for the corresponding CUDA version
+--find-links https://download.pytorch.org/whl/torch_stable.html
+torch==1.12.1+cu102; sys_platform != "darwin"
+# CUDA 11 doesn't support macOS, so just download the default version
+torch==1.12.1; sys_platform == "darwin"
+
+# Newer versions (>=1.24) don't work with DSS
+# This is the newest version that supports Python 3.7
+numpy==1.21.6
