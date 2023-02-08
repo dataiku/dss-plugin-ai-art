@@ -1,0 +1,201 @@
+{
+    "meta": {
+        "label": "Text-to-Image Generation",
+        "description": "Generate images from a text prompt using Stable Diffusion",
+        "icon": "icon-edit"
+    },
+    "kind": "PYTHON",
+    "selectableFromFolder": "weights_folder",
+    "inputRoles": [
+        {
+            "name": "weights_folder",
+            "label": "Weights folder",
+            "description": "Folder that contains the Stable Diffusion weights. See the [documentation](https://www.dataiku.com/product/plugins/ai-art/#Download-weights) for more information",
+            "arity": "UNARY",
+            "required": true,
+            "acceptsDataset" : false,
+            "acceptsManagedFolder": true
+        }
+    ],
+    "outputRoles": [
+        {
+            "name": "image_folder",
+            "label": "Image folder",
+            "description": "Folder to save generated images to",
+            "arity": "UNARY",
+            "required": true,
+            "acceptsDataset" : false,
+            "acceptsManagedFolder": true
+        }
+    ],
+    "paramsPythonSetup": "compute_recipe_params.py",
+    "params": [
+        {
+            "type": "TEXTAREA",
+            "name": "prompt",
+            "label": "Prompt",
+            "description": "Text prompt used to generate the images",
+            "mandatory": true
+        },
+        {
+            "type": "BOOLEAN",
+            "name": "use_half_precision",
+            "label": "Half precision",
+            "description": "Use half-precision (16-bit) floats. Uncheck this if you're using the \"main\" revision of the weights",
+            "defaultValue": true,
+            "mandatory": true
+        },
+
+        {
+            "type": "SEPARATOR",
+            "name": "image-seperator",
+            "label": "Image settings"
+        },
+        {
+            "type": "INT",
+            "name": "image_count",
+            "label": "Image count",
+            "description": "Number of images to generate",
+            "mandatory": true,
+            "defaultValue": 4,
+            "minI": 1
+        },
+        {
+            "type": "INT",
+            "name": "image_width",
+            "label": "Image width",
+            "description": "Width (in pixels) of the generated images. 512 or 768 is recommended. Must be a multiple of 64. Higher resolutions require more VRAM",
+            "defaultValue": 512,
+            "minI": 1,
+            "mandatory": true
+        },
+        {
+            "type": "INT",
+            "name": "image_height",
+            "label": "Image height",
+            "description": "Height (in pixels) of the generated images. 512 or 768 is recommended. Must be a multiple of 64. Higher resolutions require more VRAM",
+            "defaultValue": 512,
+            "minI": 1,
+            "mandatory": true
+        },
+
+        {
+            "type": "SEPARATOR",
+            "name": "advanced-separator",
+            "description": "---\n"
+        },
+        {
+            "type": "BOOLEAN",
+            "name": "show_advanced",
+            "label": "Show advanced settings",
+            "defaultValue": false,
+            "mandatory": true
+        },
+
+        {
+            "type": "SEPARATOR",
+            "name": "folder-separator",
+            "label": "Folder settings",
+            "visibilityCondition": "model.show_advanced"
+        },
+        {
+            "type": "BOOLEAN",
+            "name": "clear_folder",
+            "label": "Clear folder",
+            "description": "Delete all existing files in the image folder before each run",
+            "defaultValue": true,
+            "mandatory": true,
+            "visibilityCondition": "model.show_advanced"
+        },
+        {
+            "type": "STRING",
+            "name": "filename_prefix",
+            "label": "Filename prefix",
+            "description": "Prefix of the filename that the images will be saved as",
+            "defaultValue": "image-",
+            "mandatory": true,
+            "visibilityCondition": "model.show_advanced"
+        },
+
+        {
+            "type": "SEPARATOR",
+            "name": "cuda-separator",
+            "label": "CUDA settings",
+            "visibilityCondition": "model.show_advanced"
+        },
+        {
+            "type": "SELECT",
+            "name": "device",
+            "label": "CUDA device",
+            "defaultValue": "auto",
+            "mandatory": true,
+            "getChoicesFromPython": true,
+            "disableAutoReload": true,
+            "visibilityCondition": "model.show_advanced"
+        },
+        {
+            "type": "BOOLEAN",
+            "name": "use_autocast",
+            "label": "CUDA autocast",
+            "description": "Enable autocasting when using CUDA. Faster, but it may cause the recipe to generate solid black images in some situations",
+            "defaultValue": false,
+            "mandatory": true,
+            "visibilityCondition": "model.show_advanced"
+        },
+
+        {
+            "type": "SEPARATOR",
+            "name": "inference-separator",
+            "label": "Inference settings",
+            "visibilityCondition": "model.show_advanced"
+        },
+        {
+            "type": "BOOLEAN",
+            "name": "enable_attention_slicing",
+            "label": "Attention slicing",
+            "description": "Generate each image in steps instead of all at once. Reduces VRAM usage, but is slightly slower",
+            "defaultValue": true,
+            "mandatory": true,
+            "visibilityCondition": "model.show_advanced"
+        },
+        {
+            "type": "INT",
+            "name": "batch_size",
+            "label": "Batch size",
+            "description": "Number of images to generate at once. Larger batch sizes are sometimes faster, but require more VRAM",
+            "mandatory": true,
+            "defaultValue": 1,
+            "minI": 1,
+            "visibilityCondition": "model.show_advanced && model.image_count > 1"
+        },
+        {
+            "type": "INT",
+            "name": "random_seed",
+            "label": "Random seed",
+            "description": "Seed used to generate the images. Set this to a non-zero value to generate reproducible images",
+            "mandatory": false,
+            "visibilityCondition": "model.show_advanced"
+        },
+        {
+            "type": "INT",
+            "name": "num_inference_steps",
+            "label": "Denoising steps",
+            "description": "Number of denoising steps. More steps increases quality, but is slower",
+            "defaultValue": 50,
+            "minI": 1,
+            "mandatory": true,
+            "visibilityCondition": "model.show_advanced"
+        },
+        {
+            "type": "DOUBLE",
+            "name": "guidance_scale",
+            "label": "Guidance scale",
+            "description": "Guidance scale. Higher values generate images more closely linked to the text prompt, at the expense of lower quality",
+            "defaultValue": 7.5,
+            "minD": 0.0,
+            "mandatory": true,
+            "visibilityCondition": "model.show_advanced"
+        }
+    ],
+    "resourceKeys": []
+}

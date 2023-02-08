@@ -1,0 +1,14 @@
+{
+    "id": "ai-art",
+    "version": "1.0.0",
+    "meta": {
+        "label": "AI Art",
+        "description": "Use Stable Diffusion to generate images from text prompts",
+        "author": "Dataiku (Zach McCallen)",
+        "icon": "icon-picture",
+        "tags": ["AutoML", "Image", "Machine Learning", "NLP"],
+        "url": "https://www.dataiku.com/product/plugins/ai-art/",
+        "licenseInfo": "Apache Software License",
+        "supportLevel": "NOT_SUPPORTED"
+    }
+}
