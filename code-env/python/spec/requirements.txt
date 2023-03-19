@@ -4,9 +4,9 @@ ftfy==6.1.1
 accelerate==0.15.0
 Pillow==9.3.0
 
-# Get PyTorch for the corresponding CUDA version
+# Get PyTorch for CUDA 11.6
 --find-links https://download.pytorch.org/whl/torch_stable.html
-torch==1.12.1+cu102; sys_platform != "darwin"
+torch==1.12.1+cu116; sys_platform != "darwin"
 # CUDA 11 doesn't support macOS, so just download the default version
 torch==1.12.1; sys_platform == "darwin"
 

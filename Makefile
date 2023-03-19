@@ -1,26 +1,17 @@
 # Makefile variables set automatically
 plugin_id=ai-art
 plugin_version=`cat plugin.json | python -c "import sys, json; print(str(json.load(sys.stdin)['version']).replace('/',''))"`
-archive_file_name="dss-plugin-${plugin_id}-${CUDA_VERSION_ID}-${plugin_version}.zip"
+archive_file_name="dss-plugin-${plugin_id}-${plugin_version}.zip"
 remote_url=`git config --get remote.origin.url`
 last_commit_id=`git rev-parse "$${git_stash:-HEAD}"`
-
-# You can override the CUDA version by setting the $CUDA_VERSION env-var
-CUDA_VERSION ?= 10.2
-# Remove '.' from $CUDA_VERSION, e.g. '10.2' > 'cu102'
-CUDA_VERSION_ID = cu$(subst .,,$(CUDA_VERSION))
 
 
 plugin:
 	@echo "[START] Archiving plugin to dist/ folder..."
-	@echo "CUDA version: ${CUDA_VERSION} (${CUDA_VERSION_ID})"
-	@sed -i "s/${plugin_id}-cu[[:digit:]]\+/${plugin_id}-${CUDA_VERSION_ID}/" plugin.json
-	@sed -i "s/CUDA [\.[:digit:]]\+/CUDA ${CUDA_VERSION}/" plugin.json
 	@cat plugin.json | json_pp > /dev/null
-	@sed -i "s/cu[[:digit:]]\+/${CUDA_VERSION_ID}/" code-env/python/spec/requirements.txt
 	@rm -rf dist
 	@mkdir dist
-#	Stash the unstaged changes made above so that git-archive picks them up
+#	Stash unstaged changes so that git-archive picks them up
 	@( \
 		git_stash="$$(git stash create)"; \
 		echo "Stashed changes to $${git_stash:-HEAD}"; \

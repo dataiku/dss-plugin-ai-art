@@ -39,17 +39,6 @@ Create a plugin archive that can be imported into DSS:
 make plugin
 ```
 
-By default, the plugin will use CUDA 10.2. You can build it for a different
-version by setting the `$CUDA_VERSION` env-var:
-```bash
-CUDA_VERSION=11.6 make plugin
-```
-
-Supported CUDA versions:
-- 10.2
-- 11.3
-- 11.6
-
 ## Known limitations
 The weights must be stored on the local filesystem. If a remote folder (S3, etc)
 is used, or if the recipe uses containerized execution, the weights will be

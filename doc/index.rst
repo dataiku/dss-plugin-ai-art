@@ -18,8 +18,8 @@ CUDA
 A CUDA-capable GPU with at least 6 GB of VRAM is recommended.
 You can run the plugin without a GPU, but it will be significantly slower.
 
-If you're using a CUDA GPU, the NVIDIA drivers must be installed on the server.
-For installation instructions, see
+If you're using a CUDA GPU, your GPU must support CUDA 11.6, and the NVIDIA
+drivers must be installed on the server. For installation instructions, see
 `NVIDIA Driver Installation Quickstart Guide <nvidia-install-guide_>`_.
 
 Download weights
