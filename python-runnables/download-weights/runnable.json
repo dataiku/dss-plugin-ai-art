@@ -12,7 +12,7 @@
             "name": "weights_folder",
             "label": "Weights folder",
             "type": "MANAGED_FOLDER",
-            "description": "Folder that the weights will be downloaded to",
+            "description": "Folder that the weights will be downloaded to. The contents of the folder will be deleted if it isn't empty",
             "mandatory": true
         },
         {
