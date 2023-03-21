@@ -45,13 +45,6 @@
             "defaultValue": true,
             "mandatory": true
         },
-        {
-            "type": "BOOLEAN",
-            "name": "show_advanced",
-            "label": "Show advanced settings",
-            "defaultValue": false,
-            "mandatory": true
-        },
 
         {
             "type": "SEPARATOR",
@@ -83,6 +76,19 @@
             "description": "Height (in pixels) of the generated images. 512 or 768 is recommended. Must be a multiple of 64. Higher resolutions require more VRAM",
             "defaultValue": 512,
             "minI": 1,
+            "mandatory": true
+        },
+
+        {
+            "type": "SEPARATOR",
+            "name": "advanced-separator",
+            "description": "---\n"
+        },
+        {
+            "type": "BOOLEAN",
+            "name": "show_advanced",
+            "label": "Show advanced settings",
+            "defaultValue": false,
             "mandatory": true
         },
 

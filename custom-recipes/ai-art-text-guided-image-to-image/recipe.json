@@ -63,13 +63,6 @@
             "defaultValue": true,
             "mandatory": true
         },
-        {
-            "type": "BOOLEAN",
-            "name": "show_advanced",
-            "label": "Show advanced settings",
-            "defaultValue": false,
-            "mandatory": true
-        },
 
         {
             "type": "SEPARATOR",
@@ -111,6 +104,19 @@
                 }
             ],
             "visibilityCondition": "model.resize_base_image"
+        },
+
+        {
+            "type": "SEPARATOR",
+            "name": "advanced-separator",
+            "description": "---\n"
+        },
+        {
+            "type": "BOOLEAN",
+            "name": "show_advanced",
+            "label": "Show advanced settings",
+            "defaultValue": false,
+            "mandatory": true
         },
 
         {
