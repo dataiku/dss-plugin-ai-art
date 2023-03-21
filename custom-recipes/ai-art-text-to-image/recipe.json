@@ -10,7 +10,7 @@
         {
             "name": "weights_folder",
             "label": "Weights folder",
-            "description": "Folder that contains the Stable Diffusion weights. See the documentation for more information",
+            "description": "Folder that contains the Stable Diffusion weights. See the [documentation](https://www.dataiku.com/product/plugins/ai-art/#Download-weights) for more information",
             "arity": "UNARY",
             "required": true,
             "acceptsDataset" : false,

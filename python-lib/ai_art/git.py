@@ -3,6 +3,8 @@ import os
 import re
 import subprocess
 
+from ai_art.constants import DOCUMENTATION_URL
+
 
 def _run_git(command, **kwargs):
     """Run the given Git command
@@ -132,5 +134,6 @@ def check_lfs():
     except subprocess.CalledProcessError as e:
         raise RuntimeError(
             "Git LFS isn't installed. "
-            "See the documentation for installation instructions"
+            "See the documentation for installation instructions: "
+            f"{DOCUMENTATION_URL}#Download-weights"
         ) from e

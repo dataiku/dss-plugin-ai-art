@@ -2,10 +2,9 @@
 AI Art is a plugin for DSS that allows you to generate images from text prompts.
 
 ## Usage
-For usage instructions, see *INSERT LINK HERE*.
+For usage instructions, see the [documentation][plugin_documentation].
 
-> *TODO*: Add link to the plugin documentation. For now, see the Sphinx
-  documentation in [doc](doc/index.rst).
+[plugin_documentation]: https://www.dataiku.com/product/plugins/ai-art/
 
 ## Testing and linting
 Format the code using Black:
