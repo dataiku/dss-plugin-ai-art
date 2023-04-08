@@ -2,15 +2,18 @@ import html
 import logging
 import shutil
 
+import dataiku
 from dataiku.runnables import Runnable
 
 from ai_art import git
 from ai_art.folder import get_file_path_or_temp, upload_folder
-from ai_art.params import get_download_weights_config
+from ai_art.params import get_download_weights_config, WeightsFolderMode
 
 
 class DownloadWeights(Runnable):
     """Download Hugging Face weights to a managed folder"""
+
+    api_client = dataiku.api_client()
 
     def __init__(self, project_key, macro_config, plugin_config):
         """
@@ -18,6 +21,7 @@ class DownloadWeights(Runnable):
         :param macro_config: the dict of the configuration of the object
         :param plugin_config: contains the plugin settings
         """
+        self.project_key = project_key
         self.config = get_download_weights_config(macro_config)
         logging.info("Generated params: %r", self.config)
 
@@ -39,13 +43,17 @@ class DownloadWeights(Runnable):
         The progress_callback is a function expecting 1 value: current
         progress
         """
-        file_path, temp_dir = get_file_path_or_temp(self.config.weights_folder)
+        weights_folder = self._get_weights_folder()
+        logging.info("Using weights folder: %r", weights_folder.name)
+
+        file_path, temp_dir = get_file_path_or_temp(weights_folder)
         logging.info("Repo will be cloned to: %r", file_path)
 
-        logging.info(
-            "Clearing weights folder: %r", self.config.weights_folder.name
-        )
-        self.config.weights_folder.clear()
+        if self.config.weights_folder_mode is WeightsFolderMode.USE_EXISTING:
+            logging.info(
+                "Clearing existing weights folder: %r", weights_folder.name
+            )
+            weights_folder.clear()
 
         logging.info("Cloning repo: %r", self.config.model_repo)
         git.shallow_clone(
@@ -59,16 +67,39 @@ class DownloadWeights(Runnable):
         # local folders can be directly cloned to
         if temp_dir is not None:
             logging.info(
-                "Uploading repo to weights folder: %r",
-                self.config.weights_folder.name,
+                "Uploading repo to weights folder: %r", weights_folder.name
             )
-            upload_folder(file_path, self.config.weights_folder)
+            upload_folder(file_path, weights_folder)
             temp_dir.cleanup()
 
-        result = html.escape(
-            f"Successfully downloaded weights from {self.config.model_repo}"
+        result = (
+            "Successfully downloaded weights from "
+            f"{self.config.model_repo} to {weights_folder.name}"
         )
-        return result
+        return html.escape(result)
+
+    def _get_weights_folder(self):
+        """Get the weights folder, creating it if needed
+
+        The folder will be created in the default connection
+        (filesystem_folders)
+
+        :return: Weights folder
+        :rtype: dataiku.Folder
+        """
+        if self.config.weights_folder_mode is WeightsFolderMode.CREATE_NEW:
+            project = self.api_client.get_project(self.project_key)
+
+            logging.info(
+                "Creating new managed folder: %r",
+                self.config.weights_folder_name,
+            )
+            dss_managed_folder = project.create_managed_folder(
+                self.config.weights_folder_name
+            )
+            return dataiku.Folder(dss_managed_folder.id)
+        else:  # Mode is USE_EXISTING
+            return dataiku.Folder(self.config.weights_folder_name)
 
     @staticmethod
     def _rm_git_dir(repo_path):
