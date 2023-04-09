@@ -1,6 +1,6 @@
 {
     "id": "ai-art",
-    "version": "0.0.1",
+    "version": "1.0.0",
     "meta": {
         "label": "AI Art",
         "description": "Use Stable Diffusion to generate images from text prompts",
