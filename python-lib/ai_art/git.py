@@ -1,6 +1,7 @@
 import logging
 import os
 import re
+import shutil
 import subprocess
 
 from ai_art.constants import DOCUMENTATION_URL
@@ -120,6 +121,30 @@ def get_branches(repo):
             yield branch
 
 
+def _generate_lfs_error_message():
+    """Generate the error message used when Git LFS isn't installed
+
+    The error message will contain the absolute path to the 'git'
+    executable in order to make it easier to troubleshoot when the
+    instance has multiple versions of Git installed
+
+    :return: Error message
+    :rtype: str
+    """
+    git_path = shutil.which("git")
+    if git_path is None:
+        logging.warning("Unable to find 'git' executable in PATH")
+        git_path = "<NOT FOUND>"
+
+    message = (
+        "Git LFS isn't installed "
+        f"for the Git executable located at {git_path!r}. "
+        "See the documentation for installation instructions: "
+        f"{DOCUMENTATION_URL}#Download-weights"
+    )
+    return message
+
+
 def check_lfs():
     """Assert that LFS is installed
 
@@ -132,8 +157,5 @@ def check_lfs():
         # The LFS config options are set when you run `git lfs install`
         _run_git(command, check=True)
     except subprocess.CalledProcessError as e:
-        raise RuntimeError(
-            "Git LFS isn't installed. "
-            "See the documentation for installation instructions: "
-            f"{DOCUMENTATION_URL}#Download-weights"
-        ) from e
+        message = _generate_lfs_error_message()
+        raise RuntimeError(message) from e
