@@ -37,26 +37,68 @@ weights from Hugging Face by following the steps below.
 
 #.  Install `Git LFS <git-lfs_>`_ on the DSS server:
 
-    RHEL-based distros:
+    * Install on Cloud Stacks:
 
-    .. code-block:: bash
+      When using Dataiku Cloud Stacks, you can install Git LFS by adding a setup
+      action to your instance template that installs the *git-lfs* system
+      package.
 
-       yum install git-lfs
-       git lfs install --system
+      If you're running DSS 11.2, 11.3, or 11.4, you also need to add a setup
+      action that runs the following Ansible tasks:
 
-    Debian-based distros:
+      .. code-block:: yaml
 
-    .. code-block:: bash
+         - name: Check if rh-git227 config dir exists
+           register: rh_gitdir
+           ansible.builtin.stat:
+             path: /etc/opt/rh/rh-git227
+             get_attributes: false
+             get_checksum: false
+             get_mime: false
 
-       apt install git-lfs
-       git lfs install --system
+         - name: Enable Git LFS for rh-git227
+           become: true
+           when: rh_gitdir.stat.exists
+           ansible.builtin.blockinfile:
+             path: /etc/opt/rh/rh-git227/gitconfig
+             create: true
+             marker: '# {mark} ANSIBLE MANAGED LFS CONFIG'
+             block: |
+               [filter "lfs"]
+                 clean = git-lfs clean -- %f
+                 smudge = git-lfs smudge -- %f
+                 process = git-lfs filter-process
+                 required = true
 
-    macOS (using `Homebrew <homebrew_>`_):
+      .. image:: _static/git-lfs-setup-actions.png
+         :alt: Screenshot showing the setup actions needed for Cloud Stacks
 
-    .. code-block:: bash
+      Don't forget to replay the setup actions for your instance after modifying
+      the instance template.
 
-       brew install git-lfs
-       git lfs install
+      Refer to `Instance templates and setup actions <instance-templates_>`_ for
+      more information about setup actions in Cloud Stacks.
+
+    * Install on RHEL-based distros (not Cloud Stacks):
+
+      .. code-block:: bash
+
+         yum install git-lfs
+         git lfs install --system
+
+    * Install on Debian-based distros:
+
+      .. code-block:: bash
+
+         apt install git-lfs
+         git lfs install --system
+
+    * Install on macOS (using `Homebrew <homebrew_>`_):
+
+      .. code-block:: bash
+
+         brew install git-lfs
+         git lfs install
 
 #.  Create a managed folder in DSS, and download the model to it using the
     *Download Stable Diffusion weights* macro.
@@ -128,3 +170,4 @@ image based on a text prompt.
 .. _stable-diffusion-wiki: https://en.wikipedia.org/wiki/Stable_Diffusion
 .. _homebrew: https://brew.sh/
 .. _nvidia-install-guide: https://docs.nvidia.com/datacenter/tesla/tesla-installation-notes/index.html
+.. _instance-templates: https://doc.dataiku.com/dss/latest/installation/cloudstacks-aws/templates-actions.html
