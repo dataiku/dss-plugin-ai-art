@@ -1,34 +1,10 @@
-import enum
 import logging
-from urllib.parse import urljoin
 
 import torch
 
 from dku_config import DkuConfig
-from ai_art.constants import HUGGING_FACE_BASE_URL
 from ai_art.folder import get_file_path_or_temp
 from ai_art.image import open_base_image
-
-
-class WeightsFolderMode(enum.Enum):
-    """Enum representing the possible values for the
-    `weights_folder_mode` param"""
-
-    USE_EXISTING = "USE_EXISTING"
-    CREATE_NEW = "CREATE_NEW"
-
-
-def _cast_model_repo(model_repo_path):
-    """Resolve the model_repo param to an absolute URL
-
-    :param model_repo_path: Path component of the model repo URL
-    :type model_repo_path: str
-
-    :return: Absolute URL of the model repo
-    :rtype: str
-    """
-    model_repo = urljoin(HUGGING_FACE_BASE_URL, model_repo_path)
-    return model_repo
 
 
 def _cast_device_id(device_id):
@@ -367,97 +343,5 @@ def get_text_guided_image_to_image_config(
         resize_to=resize_to,
     )
     config.add_param(name="base_image", value=base_image, required=True)
-
-    return config
-
-
-def add_model_repo(dku_config, macro_config):
-    """Add the model_repo param to the DkuConfig instance
-
-    :param dku_config: DkuConfig instance that the param will be added
-        to
-    :type dku_config: dku_config.DkuConfig
-    :param macro_config: Macro config that contains the model_repo param
-    :type macro_config: Mapping[str, Any]
-
-    :return: None
-    """
-    dku_config.add_param(
-        name="model_repo_choice",
-        label="Model repo",
-        value=macro_config.get("model_repo"),
-        default="stabilityai/stable-diffusion-2-1",
-    )
-    if dku_config.model_repo_choice == "CUSTOM":
-        # Override model_repo_choice with the value from
-        # custom_model_repo
-        dku_config.add_param(
-            name="model_repo_choice",
-            label="Custom model repo",
-            value=macro_config.get("custom_model_repo"),
-            required=True,
-        )
-    dku_config.add_param(
-        name="model_repo",
-        value=dku_config.model_repo_choice,
-        required=True,
-        cast_to=_cast_model_repo,
-    )
-
-
-def add_weights_folder(dku_config, macro_config):
-    """Add the weights-folder params to the DkuConfig instance
-
-    :param dku_config: DkuConfig instance that the params will be added
-        to
-    :type dku_config: dku_config.DkuConfig
-    :param macro_config: Macro config that contains the params
-    :type macro_config: Mapping[str, Any]
-
-    :return: None
-    """
-    dku_config.add_param(
-        name="weights_folder_mode",
-        label="Use existing / Create new",
-        value=macro_config.get("weights_folder_mode"),
-        default=WeightsFolderMode.USE_EXISTING,
-        cast_to=WeightsFolderMode,
-    )
-    if dku_config.weights_folder_mode is WeightsFolderMode.CREATE_NEW:
-        dku_config.add_param(
-            name="weights_folder_name",
-            label="Weights folder name",
-            value=macro_config.get("new_weights_folder"),
-            required=True,
-        )
-    else:  # Mode is USE_EXISTING
-        dku_config.add_param(
-            name="weights_folder_name",
-            label="Weights folder",
-            value=macro_config.get("existing_weights_folder"),
-            required=True,
-        )
-
-
-def get_download_weights_config(macro_config):
-    """Create a DkuConfig instance that contains DownloadWeights params
-
-    :param macro_config: Macro config
-    :type macro_config: Mapping[str, Any]
-
-    :return: Created DkuConfig instance
-    :rtype: dku_config.DkuConfig
-    """
-    config = DkuConfig()
-
-    add_model_repo(config, macro_config)
-    add_weights_folder(config, macro_config)
-
-    config.add_param(
-        name="revision",
-        label="Model revision",
-        value=macro_config.get("revision"),
-        default="fp16",
-    )
 
     return config

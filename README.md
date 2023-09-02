@@ -39,10 +39,14 @@ make plugin
 ```
 
 ## Known limitations
-The weights must be stored on the local filesystem. If a remote folder (S3, etc)
-is used, or if the recipe uses containerized execution, the weights will be
-downloaded to a temporary directory every time the recipe is run. This is
-because the method used to load the weights ([from_pretrained]) and the method
-used to download the weights (git clone) require a local filepath.
+1.  Due to licensing restrictions, the weights must be acquired manually before
+    you can use this plugin. See the [documentation][plugin_documentation] for
+    details.
+
+1.  The weights must be stored on the local filesystem. If a remote folder (S3,
+    etc) is used, or if the recipe uses containerized execution, the weights
+    will be downloaded to a temporary directory every time the recipe is run.
+    This is because the method used to load the weights ([from_pretrained])
+    requires a local filepath.
 
 [from_pretrained]: https://huggingface.co/docs/diffusers/v0.6.0/en/api/diffusion_pipeline#diffusers.DiffusionPipeline.from_pretrained

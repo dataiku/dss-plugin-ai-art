@@ -38,28 +38,6 @@ def get_file_path_or_temp(folder):
     return pathlib.Path(file_path), temp_dir
 
 
-def upload_folder(local_path, remote_folder):
-    """Upload the contents of a local directory to a managed folder
-
-    Empty directories are skipped
-
-    :param local_path: Path to the local dir that will be uploaded
-    :type local_path: pathlib.Path
-    :param remote_folder: Managed folder that ``local_path`` will be
-        uploaded to
-    :type remote_folder: Dataiku.folder
-
-    :return: None
-    """
-    for file in local_path.rglob("*"):
-        if not file.is_file():
-            # Skip directories
-            continue
-
-        remote_path = file.relative_to(local_path)
-        remote_folder.upload_file(remote_path, file)
-
-
 def download_folder(remote_folder, local_path):
     """Download the contents of a managed folder to a local directory
 

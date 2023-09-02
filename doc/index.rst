@@ -24,51 +24,63 @@ drivers must be installed on the server. For installation instructions, see
 
 Download weights
 ----------------
-Before you can use the plugin, you need pre-trained weights. You can download
-weights from Hugging Face by following the steps below.
+Before you can use the plugin, you need to download pre-trained weights to a
+local managed folder. The plugin is designed to work with version 2 of the
+Stable Diffusion weights, although it may work with other versions and
+derivatives as well.
+
+For example, if you run the below code in a notebook, it will download the
+Stability AI version 2.1 weights, and upload them to a new managed folder.
+
+The code requires a code environment with the *huggingface-hub* package
+installed.
 
 .. warning::
-   The weights available on Hugging Face are licensed under the CreativeML
+   The weights available from Stability AI are licensed under the CreativeML
    OpenRAIL++-M license, which restricts usage. You can view the license
    `here <stabilityai-license_>`_.
 
-   If you don't agree with the license, you can alternatively use your own
-   weights and skip this section
+.. code-block:: python
 
-#.  Install `Git LFS <git-lfs_>`_ on the DSS server:
+   import tempfile
 
-    RHEL-based distros:
+   import dataiku
+   import huggingface_hub
 
-    .. code-block:: bash
+   # Name of the local folder that will be created
+   FOLDER_NAME = "my_weights"
+   # Hugging Face repository
+   REPO = "stabilityai/stable-diffusion-2-1"
+   # Revision of the repository
+   #
+   # If using the Stability AI weights, the "fp16" revision is recommended
+   # if using CUDA. Otherwise, use the "main" revision.
+   REVISION = "fp16"
 
-       yum install git-lfs
-       git lfs install --system
+   client = dataiku.api_client()
+   project = client.get_default_project()
 
-    Debian-based distros:
+   # Create the managed folder
+   folder = project.create_managed_folder(FOLDER_NAME)
 
-    .. code-block:: bash
+   with tempfile.TemporaryDirectory(dir=".") as temp_dir:
+       # Download the weights to a temp local dir
+       huggingface_hub.snapshot_download(
+          repo_id=REPO,
+          revision=REVISION,
+          local_dir=temp_dir,
+          local_dir_use_symlinks=False,
+          # Skip large files that the plugin doesn't need
+          ignore_patterns=["*.ckpt", "*.safetensors"],
+       )
 
-       apt install git-lfs
-       git lfs install --system
+       # Upload the weights to the managed folder
+       folder.upload_folder("/", temp_dir)
 
-    macOS (using `Homebrew <homebrew_>`_):
-
-    .. code-block:: bash
-
-       brew install git-lfs
-       git lfs install
-
-#.  Create a managed folder in DSS, and download the model to it using the
-    *Download Stable Diffusion weights* macro.
-
-    .. warning::
-       Using a folder that's stored on the local filesystem is recommended. If
-       the folder is stored on a remote connection (Amazon S3, Google Cloud
-       Storage, etc), the weights will be downloaded to a temporary directory
-       every time the recipe is run.
-
-    .. image:: _static/instructions-macro-1.png
-       :alt: Screenshot showing where to access the macro in the Flow
+Using a folder that's stored on the local filesystem is recommended. If the
+folder is stored on a remote connection (Amazon S3, Google Cloud Storage, etc),
+the weights will be downloaded to a temporary directory every time the recipe is
+run.
 
 How to use
 ==========
